@@ -9,7 +9,25 @@ struct AgriPulseApp: App {
         do {
             let schema = Schema([Commodity.self, NewsItem.self])
             let config = ModelConfiguration(isStoredInMemoryOnly: false)
-            modelContainer = try ModelContainer(for: schema, configurations: [config])
+            let container = try ModelContainer(for: schema, configurations: [config])
+            modelContainer = container
+
+            // Seed commodities synchronously so they're available before UI appears
+            let context = container.mainContext
+            let descriptor = FetchDescriptor<Commodity>()
+            let count = (try? context.fetchCount(descriptor)) ?? 0
+            if count == 0 {
+                for (index, seed) in CommoditySeeds.all.enumerated() {
+                    let commodity = Commodity(
+                        name: seed.name,
+                        searchQueries: seed.searchQueries,
+                        sortOrder: index,
+                        isSpecial: seed.isSpecial
+                    )
+                    context.insert(commodity)
+                }
+                try? context.save()
+            }
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }
@@ -20,28 +38,9 @@ struct AgriPulseApp: App {
             ContentView()
                 .modelContainer(modelContainer)
                 .task {
-                    await seedCommoditiesIfNeeded(context: modelContainer.mainContext)
                     await initialRefreshIfNeeded(context: modelContainer.mainContext)
                 }
         }
-    }
-
-    @MainActor
-    private func seedCommoditiesIfNeeded(context: ModelContext) async {
-        let descriptor = FetchDescriptor<Commodity>()
-        let count = (try? context.fetchCount(descriptor)) ?? 0
-        guard count == 0 else { return }
-
-        for (index, seed) in CommoditySeeds.all.enumerated() {
-            let commodity = Commodity(
-                name: seed.name,
-                searchQueries: seed.searchQueries,
-                sortOrder: index,
-                isSpecial: seed.isSpecial
-            )
-            context.insert(commodity)
-        }
-        try? context.save()
     }
 
     @MainActor
