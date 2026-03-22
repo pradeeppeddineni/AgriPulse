@@ -49,8 +49,8 @@ final class BackgroundRefreshManager {
 
             _ = await NewsService.shared.refreshAll(context: context)
 
-            // Cleanup old articles (365-day rolling window)
-            NewsService.shared.cleanupOldNews(days: 365, context: context)
+            // Cleanup old articles (30-day default, 365-day for Wheat)
+            NewsService.shared.cleanupOldNews(context: context)
             NewsService.shared.unsaveOldArticles(days: 365, context: context)
 
             task.setTaskCompleted(success: true)

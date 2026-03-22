@@ -54,12 +54,16 @@ enum KeywordLists {
         "Potato (Mandi)":     ["potato", "aloo"],
         "Groundnut":          ["groundnut", "peanut"],
         "Agri Weather":       ["monsoon", "rainfall", "drought", "flood", "weather", "imd", "cyclone", "heatwave", "cold wave", "crop advisory", "forecast", "kharif", "rabi", "el nino", "el-nino", "la nina", "la-nina", "enso", "indian ocean dipole", "iod", "skymet"],
+        "Indian Equity":      ["nifty", "sensex", "bse", "nse", "dalal street", "stock market", "fii", "dii", "ipo", "sebi", "midcap", "smallcap", "large cap", "largecap", "equity market", "indian market", "bank nifty"],
+        "Global Equity":      ["dow jones", "s&p 500", "nasdaq", "wall street", "ftse", "nikkei", "dax", "hang seng", "global equity", "us market", "us stocks", "global market", "global stock", "s&p"],
+        "Crypto":             ["bitcoin", "btc", "ethereum", "eth", "crypto", "cryptocurrency", "blockchain", "altcoin", "defi", "nft", "web3", "binance", "coinbase", "usdt", "stablecoin", "digital asset"],
+        "Mutual Funds":       ["mutual fund", "nav", "sip", "amfi", "nfo", "fund house", "equity fund", "debt fund", "hybrid fund", "aum", "fund manager", "systematic investment"],
     ]
 
     // MARK: - Noise patterns (lines 95-111)
     static let noisePatterns: [String] = [
         "word of the day", "horoscope", "recipe", "exfoliat", "skin care", "skincare",
-        "weight loss", "diet tip", "mutual fund", "data center", "semiconductor", "ai chip",
+        "weight loss", "diet tip", "data center", "semiconductor", "ai chip",
         "co-packaged optics", "celebrity", "bollywood", "cricket match", "ipl ",
         "movie review", "film review", "tv show", "web series", "ott", "stock market tip",
         "personal finance", "credit card", "loan emi", "home loan", "travel tip",

@@ -7,7 +7,7 @@ struct CommoditySeed {
 }
 
 enum CommoditySeeds {
-    static let all: [CommoditySeed] = regular + special + market
+    static let all: [CommoditySeed] = regular + special + market + equity
 
     // MARK: - Regular commodities (ported from server/routes.ts lines 21-49 + syncCommodityQueries)
 
@@ -381,11 +381,65 @@ enum CommoditySeeds {
         ),
     ]
 
+    // MARK: - Equity commodities (ported from Commodity-Watcher-2 server/routes.ts lines 309-335)
+
+    static let equity: [CommoditySeed] = [
+        CommoditySeed(
+            name: "Indian Equity",
+            searchQueries: """
+            ("Nifty" OR "Sensex" OR "NSE" OR "BSE" OR "Dalal Street") India stock market today
+            India equity (FII OR DII OR "foreign investor" OR "institutional" OR "domestic investor") market flows
+            ("Nifty 50" OR "Bank Nifty" OR "Midcap" OR "IPO" OR "Sensex" OR "Smallcap") India market today
+            India stock market (site:economictimes.indiatimes.com OR site:livemint.com OR site:financialexpress.com OR site:thehindu.com)
+            India market (site:ndtv.com OR site:business-standard.com OR site:zeebiz.com OR site:moneycontrol.com)
+            India (SEBI OR IPO OR "market cap" OR "block deal" OR "bulk deal" OR "circuit breaker" OR "upper circuit") equity today
+            """,
+            isSpecial: false
+        ),
+        CommoditySeed(
+            name: "Global Equity",
+            searchQueries: """
+            ("Dow Jones" OR "S&P 500" OR "Nasdaq" OR "Wall Street") stock market today
+            Global equity (market OR stocks OR rally OR correction OR bull OR bear OR gains OR losses) today
+            ("FTSE" OR "Nikkei" OR "DAX" OR "Hang Seng" OR "Shanghai Composite" OR "CAC 40") stock market
+            US market today stocks (site:reuters.com OR site:cnbc.com OR site:bloomberg.com OR site:wsj.com)
+            Global stock market (site:economictimes.indiatimes.com OR site:livemint.com OR site:thehindu.com OR site:financialexpress.com)
+            ("Federal Reserve" OR "Fed rate" OR "interest rate" OR "US economy" OR "recession") market impact stocks
+            """,
+            isSpecial: false
+        ),
+        CommoditySeed(
+            name: "Crypto",
+            searchQueries: """
+            ("Bitcoin" OR "BTC") price today market crypto
+            ("Ethereum" OR "ETH" OR "crypto" OR "cryptocurrency") price market today
+            Crypto India (RBI OR SEBI OR tax OR regulation OR investment OR exchange OR "virtual digital asset")
+            (site:coindesk.com OR site:cointelegraph.com) crypto Bitcoin Ethereum market today
+            Crypto market (site:economictimes.indiatimes.com OR site:livemint.com OR site:thehindu.com OR site:ndtv.com OR site:financialexpress.com)
+            ("Bitcoin" OR "Ethereum" OR "crypto") India (price OR market OR rally OR crash OR regulation OR tax) today
+            """,
+            isSpecial: false
+        ),
+        CommoditySeed(
+            name: "Mutual Funds",
+            searchQueries: """
+            ("Mutual fund" OR "NAV" OR "SIP") India performance returns today
+            Mutual fund India (AMFI OR SEBI OR "fund house" OR "NFO" OR "AUM" OR "expense ratio" OR returns OR performance)
+            ("SIP" OR "Systematic Investment Plan" OR "Mutual Fund") India (site:economictimes.indiatimes.com OR site:livemint.com OR site:moneycontrol.com)
+            Mutual fund India (site:financialexpress.com OR site:thehindu.com OR site:business-standard.com OR site:ndtv.com)
+            ("equity fund" OR "debt fund" OR "hybrid fund" OR "index fund" OR "ELSS" OR "balanced fund") India returns performance
+            Mutual fund India (top OR best OR worst OR ranking OR category OR switch OR redemption OR inflow OR outflow)
+            """,
+            isSpecial: false
+        ),
+    ]
+
     // MARK: - Sidebar grouping
 
     enum Group: String, CaseIterable {
         case command = "Command Centre"
         case markets = "Markets"
+        case equity = "Equity & Finance"
         case regulatory = "Regulatory"
     }
 
@@ -395,6 +449,8 @@ enum CommoditySeeds {
             return .command
         case "DGFT Updates", "Packaging":
             return .regulatory
+        case "Indian Equity", "Global Equity", "Crypto", "Mutual Funds":
+            return .equity
         default:
             return .markets
         }

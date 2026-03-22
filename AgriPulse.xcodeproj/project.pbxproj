@@ -34,6 +34,8 @@
 		E10000010000000000000025 /* PDFExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000020000000000000025; };
 		E10000010000000000000026 /* RefreshButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000020000000000000026; };
 		E10000010000000000000027 /* BadgeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000020000000000000027; };
+		E10000010000000000000028 /* EquityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000020000000000000029; };
+		E10000010000000000000029 /* EquityMarketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000020000000000000030; };
 		E10000010000000000000050 /* FeedKit in Frameworks */ = {isa = PBXBuildFile; productRef = E10000030000000000000050; };
 		E10000010000000000000051 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = E10000030000000000000051; };
 /* End PBXBuildFile section */
@@ -67,6 +69,8 @@
 		E10000020000000000000026 /* RefreshButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshButton.swift; sourceTree = "<group>"; };
 		E10000020000000000000027 /* BadgeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeViews.swift; sourceTree = "<group>"; };
 		E10000020000000000000028 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E10000020000000000000029 /* EquityViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EquityViewModel.swift; sourceTree = "<group>"; };
+		E10000020000000000000030 /* EquityMarketView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EquityMarketView.swift; sourceTree = "<group>"; };
 		E10000020000000000000099 /* AgriPulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AgriPulse.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -136,6 +140,7 @@
 				E10000020000000000000017 /* NewsFeedViewModel.swift */,
 				E10000020000000000000018 /* CalendarViewModel.swift */,
 				E10000020000000000000019 /* SavedArticlesViewModel.swift */,
+				E10000020000000000000029 /* EquityViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -146,11 +151,20 @@
 				E10000020000000000000002 /* ContentView.swift */,
 				E10000020000000000000020 /* SidebarView.swift */,
 				E10000050000000000000009 /* News */,
+				E10000050000000000000013 /* Equity */,
 				E10000050000000000000010 /* Calendar */,
 				E10000050000000000000011 /* Saved */,
 				E10000050000000000000012 /* Common */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		E10000050000000000000013 /* Equity */ = {
+			isa = PBXGroup;
+			children = (
+				E10000020000000000000030 /* EquityMarketView.swift */,
+			);
+			path = Equity;
 			sourceTree = "<group>";
 		};
 		E10000050000000000000007 /* Theme */ = {
@@ -317,6 +331,8 @@
 				E10000010000000000000025 /* PDFExportView.swift in Sources */,
 				E10000010000000000000026 /* RefreshButton.swift in Sources */,
 				E10000010000000000000027 /* BadgeViews.swift in Sources */,
+				E10000010000000000000028 /* EquityViewModel.swift in Sources */,
+				E10000010000000000000029 /* EquityMarketView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

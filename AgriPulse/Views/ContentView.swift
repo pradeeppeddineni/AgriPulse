@@ -9,6 +9,7 @@ struct ContentView: View {
 
     enum AppTab: String, CaseIterable {
         case news = "News"
+        case equity = "Equity"
         case calendar = "Calendar"
         case saved = "Saved"
     }
@@ -24,6 +25,8 @@ struct ContentView: View {
                         switch selectedTab {
                         case .news:
                             NewsFeedView(commodity: sidebarVM.selectedCommodity)
+                        case .equity:
+                            EquityMarketView()
                         case .calendar:
                             CommodityCalendarView()
                         case .saved:
@@ -51,6 +54,14 @@ struct ContentView: View {
                         Label("News", systemImage: "newspaper.fill")
                     }
                     .tag(AppTab.news)
+
+                    NavigationStack {
+                        EquityMarketView()
+                    }
+                    .tabItem {
+                        Label("Equity", systemImage: "chart.line.uptrend.xyaxis")
+                    }
+                    .tag(AppTab.equity)
 
                     NavigationStack {
                         CommodityCalendarView()
