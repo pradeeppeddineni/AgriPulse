@@ -46,6 +46,13 @@ struct NewsFeedView: View {
         .onAppear {
             viewModel.load(commodity: commodity, context: modelContext)
         }
+        .task(id: commodity?.name) {
+            // Auto-refresh if this view has no articles yet
+            viewModel.load(commodity: commodity, context: modelContext)
+            if viewModel.newsItems.isEmpty && !viewModel.isRefreshing {
+                await viewModel.refresh(context: modelContext)
+            }
+        }
         .onChange(of: commodity?.name) {
             viewModel.load(commodity: commodity, context: modelContext)
         }

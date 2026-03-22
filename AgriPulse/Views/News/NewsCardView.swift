@@ -5,6 +5,7 @@ struct NewsCardView: View {
     var commodityName: String?
     var index: Int = 0
     var onToggleSave: (() -> Void)?
+    @State private var appeared = false
 
     var body: some View {
         let (level, ageLabel) = AgeLevel.from(publishedAt: item.publishedAt)
@@ -122,10 +123,11 @@ struct NewsCardView: View {
             )
         }
         .buttonStyle(.plain)
-        .opacity(0)
-        .animation(.easeOut(duration: 0.3).delay(Double(min(index, 10)) * 0.04), value: true)
+        .opacity(appeared ? 1 : 0)
         .onAppear {
-            withAnimation(.easeOut(duration: 0.3).delay(Double(min(index, 10)) * 0.04)) {}
+            withAnimation(.easeOut(duration: 0.3).delay(Double(min(index, 10)) * 0.04)) {
+                appeared = true
+            }
         }
     }
 }

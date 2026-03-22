@@ -21,6 +21,7 @@ struct AgriPulseApp: App {
                 .modelContainer(modelContainer)
                 .task {
                     await seedCommoditiesIfNeeded(context: modelContainer.mainContext)
+                    await initialRefreshIfNeeded(context: modelContainer.mainContext)
                 }
         }
     }
@@ -41,5 +42,15 @@ struct AgriPulseApp: App {
             context.insert(commodity)
         }
         try? context.save()
+    }
+
+    @MainActor
+    private func initialRefreshIfNeeded(context: ModelContext) async {
+        let descriptor = FetchDescriptor<NewsItem>()
+        let count = (try? context.fetchCount(descriptor)) ?? 0
+        guard count == 0 else { return }
+
+        // No news yet — fetch everything on first launch
+        _ = await NewsService.shared.refreshAll(context: context)
     }
 }

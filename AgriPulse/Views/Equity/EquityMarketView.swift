@@ -94,6 +94,16 @@ struct EquityMarketView: View {
         .onAppear {
             viewModel.load(context: modelContext)
         }
+        .task {
+            // Auto-refresh equity commodities if no articles exist
+            viewModel.load(context: modelContext)
+            for tab in tabs {
+                if let commodity = viewModel.commodity(named: tab.id),
+                   (commodity.newsItems ?? []).isEmpty {
+                    _ = await viewModel.refresh(commodity: commodity, context: modelContext)
+                }
+            }
+        }
     }
 
     private func tabButton(_ tab: TabInfo) -> some View {
