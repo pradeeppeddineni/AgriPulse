@@ -6,9 +6,6 @@ workflows:
     integrations:
       app_store_connect: pradeepdevkey
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.agripulse.app
       vars:
         XCODE_PROJECT: "AgriPulse.xcodeproj"
         XCODE_SCHEME: "AgriPulse"
