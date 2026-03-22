@@ -3,8 +3,6 @@ import SwiftData
 
 @Model
 final class NewsItem {
-    #Unique<NewsItem>([\.link])
-
     var title: String
     @Attribute(.unique) var link: String
     var source: String
