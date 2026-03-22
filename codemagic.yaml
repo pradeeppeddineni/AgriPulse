@@ -6,10 +6,12 @@ workflows:
     integrations:
       app_store_connect: pradeepdevkey
     environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.agripulse.app
       vars:
         XCODE_PROJECT: "AgriPulse.xcodeproj"
         XCODE_SCHEME: "AgriPulse"
-        BUNDLE_ID: "com.agripulse.app"
       xcode: latest
     scripts:
       - name: Resolve Swift packages
@@ -20,30 +22,10 @@ workflows:
       - name: Increment build number
         script: |
           agvtool new-version -all $(($(app-store-connect get-latest-testflight-build-number "$APP_STORE_CONNECT_APP_APPLE_ID") + 1))
-      - name: Set up keychain
-        script: |
-          keychain initialize
-      - name: Fetch signing files
-        script: |
-          export CERTIFICATE_PRIVATE_KEY=$(openssl genrsa 2048 2>/dev/null)
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --create
       - name: Set up code signing
         script: |
           xcode-project use-profiles
       - name: Build iOS app
-        script: |
-          xcodebuild -project "$XCODE_PROJECT" \
-            -scheme "$XCODE_SCHEME" \
-            -sdk iphoneos \
-            -configuration Release \
-            -archivePath build/ios/xcarchive/AgriPulse.xcarchive \
-            archive \
-            COMPILER_INDEX_STORE_ENABLE=NO \
-            CODE_SIGN_STYLE=Manual \
-            2>&1 | tail -100
-      - name: Export IPA
         script: |
           xcode-project build-ipa \
             --project "$XCODE_PROJECT" \
