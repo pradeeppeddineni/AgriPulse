@@ -1,0 +1,39 @@
+workflows:
+  agripulse-ios:
+    name: AgriPulse iOS
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: pradeepdevkey
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.agripulse.app
+      vars:
+        XCODE_PROJECT: "AgriPulse.xcodeproj"
+        XCODE_SCHEME: "AgriPulse"
+      xcode: latest
+    scripts:
+      - name: Resolve Swift packages
+        script: |
+          xcodebuild -resolvePackageDependencies \
+            -project "$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME"
+      - name: Increment build number
+        script: |
+          agvtool new-version -all $(($(app-store-connect get-latest-testflight-build-number "$APP_STORE_CONNECT_APP_APPLE_ID") + 1))
+      - name: Set up code signing
+        script: |
+          xcode-project use-profiles
+      - name: Build iOS app
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
