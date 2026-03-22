@@ -45,7 +45,8 @@ final class NewsService {
             }
 
             // Dedup by link
-            let linkPredicate = #Predicate<NewsItem> { $0.link == article.link }
+            let linkToCheck = article.link
+            let linkPredicate = #Predicate<NewsItem> { $0.link == linkToCheck }
             let descriptor = FetchDescriptor<NewsItem>(predicate: linkPredicate)
             let existing = (try? context.fetchCount(descriptor)) ?? 0
             if existing > 0 { continue }
