@@ -11,6 +11,7 @@ workflows:
       vars:
         XCODE_PROJECT: "AgriPulse.xcodeproj"
         XCODE_SCHEME: "AgriPulse"
+        APP_STORE_CONNECT_APP_APPLE_ID: "6760972266"
       xcode: latest
     scripts:
       - name: Resolve Swift packages
@@ -30,7 +31,10 @@ workflows:
           xcode-project use-profiles
       - name: Increment build number
         script: |
-          agvtool new-version -all $(($(app-store-connect get-latest-testflight-build-number "$APP_STORE_CONNECT_APP_APPLE_ID") + 1))
+          LATEST=$(app-store-connect get-latest-testflight-build-number "6760972266" 2>/dev/null || echo "3")
+          NEXT=$((LATEST + 1))
+          echo "Latest TestFlight build: $LATEST → next: $NEXT"
+          agvtool new-version -all "$NEXT"
       - name: Build iOS app
         script: |
           xcode-project build-ipa \
