@@ -6,9 +6,8 @@ workflows:
     integrations:
       app_store_connect: pradeepdevkey
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.agripulse.app
+      groups:
+        - signing
       vars:
         XCODE_PROJECT: "AgriPulse.xcodeproj"
         XCODE_SCHEME: "AgriPulse"
@@ -19,12 +18,19 @@ workflows:
           xcodebuild -resolvePackageDependencies \
             -project "$XCODE_PROJECT" \
             -scheme "$XCODE_SCHEME"
+      - name: Fetch signing files
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "com.agripulse.app" \
+            --type IOS_APP_STORE \
+            --create
+      - name: Set up code signing
+        script: |
+          keychain add-certificates
+          xcode-project use-profiles
       - name: Increment build number
         script: |
           agvtool new-version -all $(($(app-store-connect get-latest-testflight-build-number "$APP_STORE_CONNECT_APP_APPLE_ID") + 1))
-      - name: Set up code signing
-        script: |
-          xcode-project use-profiles
       - name: Build iOS app
         script: |
           xcode-project build-ipa \
