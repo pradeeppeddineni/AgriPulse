@@ -9,6 +9,17 @@ struct NewsFeedView: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
+                if let syncText = viewModel.lastSyncedText {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock")
+                            .font(.system(size: 10))
+                        Text(syncText)
+                            .font(.system(size: 11))
+                    }
+                    .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
                 if viewModel.filteredItems.isEmpty && !viewModel.isRefreshing {
                     emptyState
                 } else {

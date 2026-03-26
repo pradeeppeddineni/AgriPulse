@@ -4,14 +4,17 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(\.scenePhase) private var scenePhase
     @State private var sidebarVM = SidebarViewModel()
-    @State private var selectedTab: AppTab = .news
+    @State private var selectedTab: AppTab = .latest
+    @State private var showMoreSidebar = false
 
     enum AppTab: String, CaseIterable {
-        case news = "News"
-        case equity = "Equity"
-        case calendar = "Calendar"
+        case latest = "Latest"
         case saved = "Saved"
+        case weather = "Weather"
+        case wheat = "Wheat"
+        case equity = "Equity"
     }
 
     var body: some View {
@@ -23,14 +26,16 @@ struct ContentView: View {
                 } detail: {
                     NavigationStack {
                         switch selectedTab {
-                        case .news:
+                        case .latest:
                             NewsFeedView(commodity: sidebarVM.selectedCommodity)
-                        case .equity:
-                            EquityMarketView()
-                        case .calendar:
-                            CommodityCalendarView()
                         case .saved:
                             SavedArticlesView()
+                        case .weather:
+                            NewsFeedView(commodity: sidebarVM.commodity(named: "Agri Weather"))
+                        case .wheat:
+                            NewsFeedView(commodity: sidebarVM.commodity(named: "Wheat"))
+                        case .equity:
+                            EquityMarketView()
                         }
                     }
                 }
@@ -46,30 +51,15 @@ struct ContentView: View {
                         NewsFeedView(commodity: sidebarVM.selectedCommodity)
                             .toolbar {
                                 ToolbarItem(placement: .topBarLeading) {
-                                    commodityMenu
+                                    hamburgerMenu
                                 }
                             }
                     }
                     .tabItem {
-                        Label("News", systemImage: "newspaper.fill")
+                        Label("Latest", systemImage: "newspaper.fill")
                     }
-                    .tag(AppTab.news)
-
-                    NavigationStack {
-                        EquityMarketView()
-                    }
-                    .tabItem {
-                        Label("Equity", systemImage: "chart.line.uptrend.xyaxis")
-                    }
-                    .tag(AppTab.equity)
-
-                    NavigationStack {
-                        CommodityCalendarView()
-                    }
-                    .tabItem {
-                        Label("Calendar", systemImage: "calendar")
-                    }
-                    .tag(AppTab.calendar)
+                    .tag(AppTab.latest)
+                    .badge(sidebarVM.latestFreshCount)
 
                     NavigationStack {
                         SavedArticlesView()
@@ -78,6 +68,33 @@ struct ContentView: View {
                         Label("Saved", systemImage: "bookmark.fill")
                     }
                     .tag(AppTab.saved)
+
+                    NavigationStack {
+                        NewsFeedView(commodity: sidebarVM.commodity(named: "Agri Weather"))
+                    }
+                    .tabItem {
+                        Label("Weather", systemImage: "cloud.sun.fill")
+                    }
+                    .tag(AppTab.weather)
+                    .badge(sidebarVM.weatherFreshCount)
+
+                    NavigationStack {
+                        NewsFeedView(commodity: sidebarVM.commodity(named: "Wheat"))
+                    }
+                    .tabItem {
+                        Label("Wheat", systemImage: "leaf.fill")
+                    }
+                    .tag(AppTab.wheat)
+                    .badge(sidebarVM.wheatFreshCount)
+
+                    NavigationStack {
+                        EquityMarketView()
+                    }
+                    .tabItem {
+                        Label("Equity", systemImage: "chart.line.uptrend.xyaxis")
+                    }
+                    .tag(AppTab.equity)
+                    .badge(sidebarVM.equityFreshCount)
                 }
                 .tint(AgriPulseTheme.primary)
             }
@@ -85,6 +102,24 @@ struct ContentView: View {
         .preferredColorScheme(.dark)
         .onAppear {
             sidebarVM.load(context: modelContext)
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                sidebarVM.load(context: modelContext)
+            }
+        }
+        .sheet(isPresented: $showMoreSidebar) {
+            NavigationStack {
+                moreSidebarContent
+                    .navigationTitle("Commodities")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Done") { showMoreSidebar = false }
+                        }
+                    }
+            }
+            .presentationDetents([.medium, .large])
         }
     }
 
@@ -97,10 +132,45 @@ struct ContentView: View {
         .pickerStyle(.segmented)
     }
 
-    private var commodityMenu: some View {
+    private var hamburgerMenu: some View {
         Menu {
             Button("Latest Updates") {
                 sidebarVM.selectedCommodity = nil
+            }
+
+            Button {
+                showMoreSidebar = true
+            } label: {
+                Label("All Commodities", systemImage: "square.grid.2x2")
+            }
+
+            Section("Quick Access") {
+                Button("Calendar") {
+                    showMoreSidebar = false
+                    // Present calendar as sheet
+                    showCalendarSheet = true
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "line.3.horizontal")
+                Text(sidebarVM.selectedCommodity?.name ?? "Latest")
+                    .font(.subheadline.weight(.semibold))
+            }
+        }
+    }
+
+    @State private var showCalendarSheet = false
+
+    private var moreSidebarContent: some View {
+        List {
+            Section("Calendar") {
+                Button {
+                    showMoreSidebar = false
+                    showCalendarSheet = true
+                } label: {
+                    Label("Commodity Calendar", systemImage: "calendar")
+                }
             }
 
             ForEach(sidebarVM.grouped, id: \.group) { section in
@@ -108,24 +178,45 @@ struct ContentView: View {
                     ForEach(section.items, id: \.name) { commodity in
                         Button {
                             sidebarVM.selectedCommodity = commodity
+                            // Route to the right tab
+                            if commodity.name == "Agri Weather" {
+                                selectedTab = .weather
+                            } else if commodity.name == "Wheat" {
+                                selectedTab = .wheat
+                            } else if ["Indian Equity", "Global Equity", "Crypto", "Mutual Funds"].contains(commodity.name) {
+                                selectedTab = .equity
+                            } else {
+                                selectedTab = .latest
+                            }
+                            showMoreSidebar = false
                         } label: {
                             HStack {
                                 Text(commodity.name)
+                                    .foregroundStyle(AgriPulseTheme.foreground)
+                                Spacer()
                                 if let count = sidebarVM.freshCounts[commodity.name], count > 0 {
                                     Text("\(count)")
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
+                                        .font(.caption2.weight(.semibold))
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(AgriPulseTheme.primary.opacity(0.2))
+                                        .clipShape(Capsule())
+                                        .foregroundStyle(AgriPulseTheme.primary)
                                 }
                             }
                         }
                     }
                 }
             }
-        } label: {
-            HStack(spacing: 4) {
-                Image(systemName: "line.3.horizontal.decrease")
-                Text(sidebarVM.selectedCommodity?.name ?? "Latest")
-                    .font(.subheadline.weight(.semibold))
+        }
+        .sheet(isPresented: $showCalendarSheet) {
+            NavigationStack {
+                CommodityCalendarView()
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Done") { showCalendarSheet = false }
+                        }
+                    }
             }
         }
     }

@@ -65,6 +65,7 @@ final class NewsService {
         }
 
         try? context.save()
+        UserDefaults.standard.set(Date(), forKey: "lastSyncedAt")
         return insertedCount
     }
 

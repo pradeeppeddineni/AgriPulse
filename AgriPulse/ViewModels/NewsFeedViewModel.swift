@@ -9,6 +9,15 @@ final class NewsFeedViewModel {
     var isRefreshing = false
     var searchText = ""
 
+    var lastSyncedText: String? {
+        guard let date = UserDefaults.standard.object(forKey: "lastSyncedAt") as? Date else { return nil }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM yyyy 'at' hh:mm a"
+        formatter.timeZone = TimeZone(identifier: "Asia/Kolkata")
+        formatter.locale = Locale(identifier: "en_IN")
+        return "Synced \(formatter.string(from: date)) IST"
+    }
+
     private var commodity: Commodity?
 
     var filteredItems: [NewsItem] {
@@ -20,6 +29,14 @@ final class NewsFeedViewModel {
             || $0.source.lowercased().contains(lower)
         }
     }
+
+    private static let excludedFromLatest: Set<String> = [
+        "Agri Weather",
+        "Indian Equity",
+        "Global Equity",
+        "Crypto",
+        "Mutual Funds"
+    ]
 
     func load(commodity: Commodity?, context: ModelContext) {
         self.commodity = commodity
@@ -34,11 +51,14 @@ final class NewsFeedViewModel {
             descriptor.fetchLimit = 200
             newsItems = (try? context.fetch(descriptor)) ?? []
         } else {
-            // Latest Updates: all news excluding weather
+            // Latest Updates: commodity news only (exclude equity and weather)
             var descriptor = FetchDescriptor<NewsItem>(sortBy: [SortDescriptor(\.publishedAt, order: .reverse)])
             descriptor.fetchLimit = 200
             let allItems = (try? context.fetch(descriptor)) ?? []
-            newsItems = allItems.filter { $0.commodity?.name != "Agri Weather" }
+            newsItems = allItems.filter { item in
+                guard let name = item.commodity?.name else { return true }
+                return !Self.excludedFromLatest.contains(name)
+            }
         }
     }
 
