@@ -7,6 +7,7 @@ struct SidePanelView: View {
     let onSelectGroup: (CommoditySeeds.MarketGroup) -> Void
     let onSelectCommodity: (Commodity) -> Void
     let onShowCalendar: () -> Void
+    var onSelectEquity: (() -> Void)?
 
     private let panelWidth: CGFloat = 280
 
@@ -111,7 +112,7 @@ struct SidePanelView: View {
                         dismiss()
                     }
                     menuItem(icon: "chart.line.uptrend.xyaxis", label: "Equity Market", badge: viewModel.equityFreshCount) {
-                        onSelectTab(.equity)
+                        onSelectEquity?()
                         dismiss()
                     }
 

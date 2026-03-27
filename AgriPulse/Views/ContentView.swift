@@ -9,117 +9,37 @@ struct ContentView: View {
     @State private var selectedTab: AppTab = .latest
     @State private var showSidePanel = false
     @State private var showCalendarSheet = false
-    @State private var navigatedGroup: CommoditySeeds.MarketGroup?
-    @State private var navigatedCommodity: Commodity?
+    @State private var moreDestination: MoreDestination?
 
     enum AppTab: String, CaseIterable {
         case latest = "Latest"
         case saved = "Saved"
         case weather = "Weather"
         case grains = "Grains"
-        case equity = "Equity"
         case more = "More"
+    }
+
+    enum MoreDestination: Equatable {
+        case equity
+        case group(String) // slug
+        case commodity(String) // name
+
+        static func == (lhs: MoreDestination, rhs: MoreDestination) -> Bool {
+            switch (lhs, rhs) {
+            case (.equity, .equity): return true
+            case (.group(let a), .group(let b)): return a == b
+            case (.commodity(let a), .commodity(let b)): return a == b
+            default: return false
+            }
+        }
     }
 
     var body: some View {
         Group {
             if sizeClass == .regular {
-                // iPad: NavigationSplitView
-                NavigationSplitView {
-                    SidebarView(viewModel: sidebarVM)
-                } detail: {
-                    NavigationStack {
-                        tabContent(for: selectedTab)
-                    }
-                }
-                .toolbar {
-                    ToolbarItem(placement: .bottomBar) {
-                        tabPicker
-                    }
-                }
+                iPadLayout
             } else {
-                // iPhone: TabView with 6 tabs
-                ZStack {
-                    TabView(selection: $selectedTab) {
-                        NavigationStack {
-                            NewsFeedView(commodity: sidebarVM.selectedCommodity)
-                        }
-                        .tabItem {
-                            Label("Latest", systemImage: "newspaper.fill")
-                        }
-                        .tag(AppTab.latest)
-                        .badge(sidebarVM.latestFreshCount)
-
-                        NavigationStack {
-                            SavedArticlesView()
-                        }
-                        .tabItem {
-                            Label("Saved", systemImage: "bookmark.fill")
-                        }
-                        .tag(AppTab.saved)
-
-                        NavigationStack {
-                            NewsFeedView(commodity: sidebarVM.commodity(named: "Agri Weather"))
-                        }
-                        .tabItem {
-                            Label("Weather", systemImage: "cloud.sun.fill")
-                        }
-                        .tag(AppTab.weather)
-                        .badge(sidebarVM.weatherFreshCount)
-
-                        NavigationStack {
-                            if let grainsGroup = CommoditySeeds.marketGroups.first(where: { $0.slug == "grains" }) {
-                                CommodityGroupView(group: grainsGroup)
-                            }
-                        }
-                        .tabItem {
-                            Label("Grains", systemImage: "leaf.fill")
-                        }
-                        .tag(AppTab.grains)
-                        .badge(sidebarVM.grainsFreshCount)
-
-                        NavigationStack {
-                            EquityMarketView()
-                        }
-                        .tabItem {
-                            Label("Equity", systemImage: "chart.line.uptrend.xyaxis")
-                        }
-                        .tag(AppTab.equity)
-                        .badge(sidebarVM.equityFreshCount)
-
-                        // More tab — placeholder content, side panel shown as overlay
-                        NavigationStack {
-                            moreTabContent
-                        }
-                        .tabItem {
-                            Label("More", systemImage: "line.3.horizontal")
-                        }
-                        .tag(AppTab.more)
-                    }
-                    .tint(AgriPulseTheme.primary)
-
-                    // Side panel overlay
-                    if showSidePanel {
-                        SidePanelView(
-                            isPresented: $showSidePanel,
-                            viewModel: sidebarVM,
-                            onSelectTab: { tab in
-                                selectedTab = tab
-                            },
-                            onSelectGroup: { group in
-                                navigatedGroup = group
-                                selectedTab = .more
-                            },
-                            onSelectCommodity: { commodity in
-                                navigatedCommodity = commodity
-                                selectedTab = .more
-                            },
-                            onShowCalendar: {
-                                showCalendarSheet = true
-                            }
-                        )
-                    }
-                }
+                iPhoneLayout
             }
         }
         .preferredColorScheme(.dark)
@@ -129,18 +49,6 @@ struct ContentView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 sidebarVM.load(context: modelContext)
-            }
-        }
-        .onChange(of: selectedTab) { oldTab, newTab in
-            if newTab == .more {
-                showSidePanel = true
-            } else {
-                showSidePanel = false
-                // Clear navigation state when leaving More tab
-                if oldTab == .more {
-                    navigatedGroup = nil
-                    navigatedCommodity = nil
-                }
             }
         }
         .sheet(isPresented: $showCalendarSheet) {
@@ -155,6 +63,118 @@ struct ContentView: View {
         }
     }
 
+    // MARK: - iPad Layout
+
+    private var iPadLayout: some View {
+        NavigationSplitView {
+            SidebarView(viewModel: sidebarVM)
+        } detail: {
+            NavigationStack {
+                tabContent(for: selectedTab)
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .bottomBar) {
+                tabPicker
+            }
+        }
+    }
+
+    // MARK: - iPhone Layout (5 tabs — iOS max without auto-More)
+
+    private var iPhoneLayout: some View {
+        ZStack {
+            TabView(selection: $selectedTab) {
+                NavigationStack {
+                    NewsFeedView(commodity: sidebarVM.selectedCommodity)
+                }
+                .tabItem {
+                    Label("Latest", systemImage: "newspaper.fill")
+                }
+                .tag(AppTab.latest)
+                .badge(sidebarVM.latestFreshCount)
+
+                NavigationStack {
+                    SavedArticlesView()
+                }
+                .tabItem {
+                    Label("Saved", systemImage: "bookmark.fill")
+                }
+                .tag(AppTab.saved)
+
+                NavigationStack {
+                    NewsFeedView(commodity: sidebarVM.commodity(named: "Agri Weather"))
+                }
+                .tabItem {
+                    Label("Weather", systemImage: "cloud.sun.fill")
+                }
+                .tag(AppTab.weather)
+                .badge(sidebarVM.weatherFreshCount)
+
+                NavigationStack {
+                    if let grainsGroup = CommoditySeeds.marketGroups.first(where: { $0.slug == "grains" }) {
+                        CommodityGroupView(group: grainsGroup)
+                    }
+                }
+                .tabItem {
+                    Label("Grains", systemImage: "leaf.fill")
+                }
+                .tag(AppTab.grains)
+                .badge(sidebarVM.grainsFreshCount)
+
+                // More tab — shows navigated content or opens side panel
+                NavigationStack {
+                    moreTabContent
+                }
+                .tabItem {
+                    Label("More", systemImage: "ellipsis")
+                }
+                .tag(AppTab.more)
+                .badge(sidebarVM.equityFreshCount)
+            }
+            .tint(AgriPulseTheme.primary)
+            .onChange(of: selectedTab) { _, newTab in
+                if newTab == .more && moreDestination == nil {
+                    // Only auto-open side panel if no destination is set
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                        showSidePanel = true
+                    }
+                }
+            }
+
+            // Side panel overlay — on top of everything
+            SidePanelView(
+                isPresented: $showSidePanel,
+                viewModel: sidebarVM,
+                onSelectTab: { tab in
+                    moreDestination = nil
+                    selectedTab = tab
+                },
+                onSelectGroup: { group in
+                    moreDestination = .group(group.slug)
+                    showSidePanel = false
+                    selectedTab = .more
+                },
+                onSelectCommodity: { commodity in
+                    moreDestination = .commodity(commodity.name)
+                    showSidePanel = false
+                    selectedTab = .more
+                },
+                onShowCalendar: {
+                    showSidePanel = false
+                    showCalendarSheet = true
+                },
+                onSelectEquity: {
+                    moreDestination = .equity
+                    showSidePanel = false
+                    selectedTab = .more
+                }
+            )
+        }
+    }
+
+    // MARK: - Tab Content
+
     @ViewBuilder
     private func tabContent(for tab: AppTab) -> some View {
         switch tab {
@@ -168,8 +188,6 @@ struct ContentView: View {
             if let grainsGroup = CommoditySeeds.marketGroups.first(where: { $0.slug == "grains" }) {
                 CommodityGroupView(group: grainsGroup)
             }
-        case .equity:
-            EquityMarketView()
         case .more:
             moreTabContent
         }
@@ -184,28 +202,65 @@ struct ContentView: View {
         .pickerStyle(.segmented)
     }
 
-    // More tab content — shows navigated group/commodity or a landing page
+    // MARK: - More Tab Content
+
+    @ViewBuilder
     private var moreTabContent: some View {
-        Group {
-            if let group = navigatedGroup {
+        switch moreDestination {
+        case .equity:
+            EquityMarketView()
+        case .group(let slug):
+            if let group = CommoditySeeds.marketGroup(forSlug: slug) {
                 CommodityGroupView(group: group)
-            } else if let commodity = navigatedCommodity {
-                NewsFeedView(commodity: commodity)
-            } else {
-                // Landing content when side panel dismissed without selection
-                VStack(spacing: 16) {
-                    Image(systemName: "square.grid.2x2")
-                        .font(.system(size: 40))
-                        .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.3))
-                    Text("All Commodities")
-                        .font(.headline)
-                        .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.6))
-                    Text("Tap More to browse all commodity groups")
-                        .font(.caption)
-                        .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.4))
+            }
+        case .commodity(let name):
+            NewsFeedView(commodity: sidebarVM.commodity(named: name))
+        case nil:
+            // Landing page — prompt to open side panel
+            VStack(spacing: 20) {
+                Spacer()
+
+                Image(systemName: "square.grid.2x2")
+                    .font(.system(size: 44))
+                    .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.25))
+
+                Text("All Commodities")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.6))
+
+                Button {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                        showSidePanel = true
+                    }
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "line.3.horizontal")
+                        Text("Browse Commodities")
+                    }
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(AgriPulseTheme.primaryForeground)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(AgriPulseTheme.primary)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(AgriPulseTheme.background)
+
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(AgriPulseTheme.background)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                            showSidePanel = true
+                        }
+                    } label: {
+                        Image(systemName: "line.3.horizontal")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(AgriPulseTheme.primary)
+                    }
+                }
             }
         }
     }
