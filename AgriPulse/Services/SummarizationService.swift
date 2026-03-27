@@ -1,8 +1,8 @@
 import Foundation
 import SwiftData
 
-#if canImport(FoundationIntelligence)
-import FoundationIntelligence
+#if canImport(FoundationModels)
+import FoundationModels
 #endif
 
 @MainActor
@@ -11,9 +11,9 @@ final class SummarizationService {
     private init() {}
 
     var isAvailable: Bool {
-        #if canImport(FoundationIntelligence)
-        if #available(iOS 18.2, *) {
-            return true
+        #if canImport(FoundationModels)
+        if #available(iOS 26.0, *) {
+            return SystemLanguageModel.default.isAvailable
         }
         #endif
         return false
@@ -22,16 +22,18 @@ final class SummarizationService {
     func summarize(_ item: NewsItem, context: ModelContext) async {
         guard item.summary == nil else { return }
 
-        #if canImport(FoundationIntelligence)
-        if #available(iOS 18.2, *) {
+        #if canImport(FoundationModels)
+        if #available(iOS 26.0, *) {
             await summarizeWithAppleIntelligence(item, context: context)
         }
         #endif
     }
 
-    #if canImport(FoundationIntelligence)
-    @available(iOS 18.2, *)
+    #if canImport(FoundationModels)
+    @available(iOS 26.0, *)
     private func summarizeWithAppleIntelligence(_ item: NewsItem, context: ModelContext) async {
+        guard SystemLanguageModel.default.isAvailable else { return }
+
         // Fetch the full article text from the webpage
         let articleText = await fetchArticleText(from: item.link)
 
@@ -40,13 +42,15 @@ final class SummarizationService {
         guard textToSummarize.trimmingCharacters(in: .whitespaces).count > 20 else { return }
 
         do {
-            let session = Summarizer(
-                format: .paragraph,
-                style: .concise
+            let session = LanguageModelSession(
+                instructions: "You are a concise news summarizer. Summarize the following article in 2-3 sentences. Focus on the key facts and impact."
             )
-            let result = try await session.summarize(textToSummarize)
-            item.summary = result
-            try? context.save()
+            let response = try await session.respond(to: textToSummarize)
+            let summary = String(describing: response).trimmingCharacters(in: .whitespacesAndNewlines)
+            if !summary.isEmpty {
+                item.summary = summary
+                try? context.save()
+            }
         } catch {
             print("Summarization failed: \(error.localizedDescription)")
         }
@@ -78,13 +82,11 @@ final class SummarizationService {
 
     /// Extracts article body text from HTML.
     private func extractArticleBody(from html: String) -> String {
-        // Strategy 1: Extract content from <article> tag
         if let articleContent = extractTag("article", from: html) {
             let text = extractParagraphs(from: articleContent)
             if text.count >= 100 { return text }
         }
 
-        // Strategy 2: Look for common article container classes/IDs
         for pattern in ["class=\"article-body", "class=\"story-body", "class=\"post-content", "class=\"entry-content", "id=\"article-body"] {
             if html.contains(pattern) {
                 if let range = html.range(of: pattern) {
@@ -98,7 +100,6 @@ final class SummarizationService {
             }
         }
 
-        // Strategy 3: Extract all <p> tags from the whole page
         return extractParagraphs(from: html)
     }
 
@@ -129,7 +130,6 @@ final class SummarizationService {
             searchRange = closeRange.upperBound..<html.endIndex
         }
 
-        // Cap at ~16000 chars
         var result = ""
         for p in paragraphs {
             if result.count + p.count > 16000 { break }
