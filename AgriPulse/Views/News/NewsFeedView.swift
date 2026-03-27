@@ -57,6 +57,9 @@ struct NewsFeedView: View {
                             index: index,
                             onToggleSave: {
                                 viewModel.toggleSave(item, context: modelContext)
+                            },
+                            onSummarize: {
+                                Task { await SummarizationService.shared.summarize(item, context: modelContext) }
                             }
                         )
                     }

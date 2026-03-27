@@ -5,7 +5,9 @@ struct NewsCardView: View {
     var commodityName: String?
     var index: Int = 0
     var onToggleSave: (() -> Void)?
+    var onSummarize: (() -> Void)?
     @State private var appeared = false
+    @State private var isSummarizing = false
 
     var body: some View {
         let (level, ageLabel) = AgeLevel.from(publishedAt: item.publishedAt)
@@ -87,6 +89,54 @@ struct NewsCardView: View {
                             .font(.system(size: 12))
                             .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(level == .old ? 0.4 : 0.75))
                             .lineLimit(2)
+                    }
+
+                    // AI Summary
+                    if let summary = item.summary {
+                        HStack(alignment: .top, spacing: 5) {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 10))
+                                .foregroundStyle(AgriPulseTheme.primary.opacity(0.7))
+                            Text(summary)
+                                .font(.system(size: 11.5, design: .rounded))
+                                .foregroundStyle(AgriPulseTheme.foreground.opacity(0.75))
+                                .lineLimit(3)
+                        }
+                        .padding(8)
+                        .background(AgriPulseTheme.primary.opacity(0.06))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(AgriPulseTheme.primary.opacity(0.12), lineWidth: 1)
+                        )
+                    } else if #available(iOS 18.1, *) {
+                        Button {
+                            isSummarizing = true
+                            onSummarize?()
+                        } label: {
+                            HStack(spacing: 4) {
+                                if isSummarizing {
+                                    ProgressView()
+                                        .controlSize(.mini)
+                                        .tint(AgriPulseTheme.primary.opacity(0.7))
+                                } else {
+                                    Image(systemName: "sparkles")
+                                        .font(.system(size: 10))
+                                }
+                                Text(isSummarizing ? "Summarizing..." : "Summarize")
+                                    .font(.system(size: 10.5, weight: .semibold))
+                            }
+                            .foregroundStyle(AgriPulseTheme.primary.opacity(0.7))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 5)
+                            .background(AgriPulseTheme.primary.opacity(0.08))
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(isSummarizing)
+                        .onChange(of: item.summary) {
+                            isSummarizing = false
+                        }
                     }
 
                     // Footer

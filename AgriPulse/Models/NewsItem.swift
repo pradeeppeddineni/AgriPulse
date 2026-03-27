@@ -10,6 +10,7 @@ final class NewsItem {
     var publishedAt: Date
     var isSaved: Bool
     var isGlobal: Bool
+    var summary: String?
 
     var commodity: Commodity?
 

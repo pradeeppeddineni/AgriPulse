@@ -172,6 +172,8 @@ private struct GroupTabContent: View {
                     NewsCardView(item: item, commodityName: commodity.name, onToggleSave: {
                         item.isSaved.toggle()
                         try? modelContext.save()
+                    }, onSummarize: {
+                        Task { await SummarizationService.shared.summarize(item, context: modelContext) }
                     })
                         .padding(.horizontal, 12)
                         .padding(.vertical, 4)

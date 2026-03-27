@@ -20,6 +20,9 @@ struct SavedArticlesView: View {
                             index: index,
                             onToggleSave: {
                                 viewModel.unsave(item, context: modelContext)
+                            },
+                            onSummarize: {
+                                Task { await SummarizationService.shared.summarize(item, context: modelContext) }
                             }
                         )
                     }
