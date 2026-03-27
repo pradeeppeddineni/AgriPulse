@@ -134,10 +134,10 @@ final class SummarizationService {
             searchRange = closeRange.upperBound..<html.endIndex
         }
 
-        // Cap at ~3000 chars to keep summarization fast
+        // Cap at ~16000 chars — Apple Intelligence handles large text well on-device
         var result = ""
         for p in paragraphs {
-            if result.count + p.count > 3000 { break }
+            if result.count + p.count > 16000 { break }
             result += p + " "
         }
         return result.trimmingCharacters(in: .whitespaces)
