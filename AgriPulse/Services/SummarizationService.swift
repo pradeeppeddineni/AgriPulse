@@ -46,7 +46,7 @@ final class SummarizationService {
                 instructions: "You are a concise news summarizer. Summarize the following article in 2-3 sentences. Focus on the key facts and impact."
             )
             let response = try await session.respond(to: textToSummarize)
-            let summary = String(describing: response).trimmingCharacters(in: .whitespacesAndNewlines)
+            let summary = response.content.trimmingCharacters(in: .whitespacesAndNewlines)
             if !summary.isEmpty {
                 item.summary = summary
                 try? context.save()

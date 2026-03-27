@@ -8,6 +8,7 @@ struct NewsCardView: View {
     var onSummarize: (() -> Void)?
     @State private var appeared = false
     @State private var isSummarizing = false
+    @State private var summaryExpanded = false
 
     var body: some View {
         let (level, ageLabel) = AgeLevel.from(publishedAt: item.publishedAt)
@@ -93,15 +94,39 @@ struct NewsCardView: View {
 
                     // AI Summary
                     if let summary = item.summary {
-                        HStack(alignment: .top, spacing: 5) {
-                            Image(systemName: "sparkles")
-                                .font(.system(size: 10))
-                                .foregroundStyle(AgriPulseTheme.primary.opacity(0.7))
-                            Text(summary)
-                                .font(.system(size: 11.5, design: .rounded))
-                                .foregroundStyle(AgriPulseTheme.foreground.opacity(0.75))
-                                .lineLimit(3)
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                summaryExpanded.toggle()
+                            }
+                        } label: {
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(spacing: 5) {
+                                    Image(systemName: "sparkles")
+                                        .font(.system(size: 10))
+                                        .foregroundStyle(AgriPulseTheme.primary.opacity(0.7))
+                                    Text("AI Summary")
+                                        .font(.system(size: 10, weight: .semibold))
+                                        .foregroundStyle(AgriPulseTheme.primary.opacity(0.7))
+                                    Spacer()
+                                    Image(systemName: summaryExpanded ? "chevron.up" : "chevron.down")
+                                        .font(.system(size: 9))
+                                        .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
+                                }
+                                if summaryExpanded {
+                                    Text(summary)
+                                        .font(.system(size: 11.5, design: .rounded))
+                                        .foregroundStyle(AgriPulseTheme.foreground.opacity(0.75))
+                                        .multilineTextAlignment(.leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                } else {
+                                    Text(summary)
+                                        .font(.system(size: 11.5, design: .rounded))
+                                        .foregroundStyle(AgriPulseTheme.foreground.opacity(0.75))
+                                        .lineLimit(2)
+                                }
+                            }
                         }
+                        .buttonStyle(.plain)
                         .padding(8)
                         .background(AgriPulseTheme.primary.opacity(0.06))
                         .clipShape(RoundedRectangle(cornerRadius: 8))
