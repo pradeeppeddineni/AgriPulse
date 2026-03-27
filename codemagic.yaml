@@ -208,6 +208,8 @@ workflows:
       - name: Increment build number
         script: |
           LATEST=$(app-store-connect get-latest-testflight-build-number "6760972266" 2>/dev/null || echo "3")
+          # Floor at 15 to skip build numbers silently rejected by Apple
+          [ "$LATEST" -lt 15 ] && LATEST=15
           NEXT=$((LATEST + 1))
           echo "Latest TestFlight build: $LATEST → next: $NEXT"
           agvtool new-version -all "$NEXT"
