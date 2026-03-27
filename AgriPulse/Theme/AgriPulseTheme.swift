@@ -80,8 +80,8 @@ enum AgeLevel: String {
         case .breaking: return 1.0
         case .hot:      return 0.95
         case .fresh:    return 0.92
-        case .normal:   return 0.82
-        case .old:      return 0.50
+        case .normal:   return 0.88
+        case .old:      return 0.72
         }
     }
 

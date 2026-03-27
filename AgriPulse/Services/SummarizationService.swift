@@ -37,9 +37,15 @@ final class SummarizationService {
         // Fetch the full article text from the webpage
         let articleText = await fetchArticleText(from: item.link)
 
-        // Fall back to title + snippet if fetch fails
-        let textToSummarize = articleText ?? "\(item.title). \(item.snippet)"
-        guard textToSummarize.trimmingCharacters(in: .whitespaces).count > 20 else { return }
+        // Fall back to title + snippet if fetch fails or body is too short
+        let textToSummarize: String
+        if let body = articleText, body.count >= 100 {
+            textToSummarize = body
+        } else {
+            let fallback = "\(item.title). \(item.snippet)"
+            guard fallback.trimmingCharacters(in: .whitespaces).count > 50 else { return }
+            textToSummarize = fallback
+        }
 
         do {
             let session = LanguageModelSession(
@@ -87,7 +93,23 @@ final class SummarizationService {
             if text.count >= 100 { return text }
         }
 
-        for pattern in ["class=\"article-body", "class=\"story-body", "class=\"post-content", "class=\"entry-content", "id=\"article-body"] {
+        // Try <main> tag
+        if let mainContent = extractTag("main", from: html) {
+            let text = extractParagraphs(from: mainContent)
+            if text.count >= 100 { return text }
+        }
+
+        // Try common CSS class/id patterns for article content
+        let patterns = [
+            "class=\"article-body", "class=\"story-body", "class=\"post-content",
+            "class=\"entry-content", "id=\"article-body", "class=\"article-content",
+            "class=\"story-content", "class=\"td-post-content", "class=\"article_content",
+            "class=\"content-area", "class=\"article__body", "class=\"field-item",
+            "class=\"story_details", "class=\"article-text", "class=\"news-detail",
+            "class=\"main-content", "class=\"post-body", "class=\"node-content",
+            "itemprop=\"articleBody",
+        ]
+        for pattern in patterns {
             if html.contains(pattern) {
                 if let range = html.range(of: pattern) {
                     let startSearch = html[..<range.lowerBound]

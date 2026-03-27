@@ -16,6 +16,13 @@ enum KeywordLists {
         "rupee", "₹", " rs.", "lakh", "crore", "sangli", "nashik", "akola",
         "indore", "bhopal", "ludhiana", "amritsar", "nagpur", "vizag", "kochi",
         "wayanad", "idukki", "nizamabad", "guntur", "nanded", "latur",
+        // State abbreviations and government terms
+        "chief minister", " cm ", "procurement", "quintal", "metric tonne",
+        "rbi", "reserve bank", "apeda", "agmarknet",
+        // Additional cities and markets
+        "lucknow", "patna", "chandigarh", "agra", "varanasi", "kanpur",
+        "coimbatore", "erode", "davangere", "unjha", "lasalgaon", "saurashtra",
+        "rajkot", "raipur", "ranchi", "bhubaneswar", "thiruvananthapuram",
     ]
 
     // MARK: - India-only commodity names (line 57)
@@ -75,6 +82,12 @@ enum KeywordLists {
         "face pack", "on the face", "for your skin", "home remedy for",
         "beauty secret", "beauty routine", "beauty tip", "skin brightening",
         "for your hair", "ayurvedic remedy",
+        // Additional patterns from Replit
+        "gram panchayat", "gram sabha", "grampanchayat",
+        "the 'gram", "'gram for", "from the 'gram", "on the 'gram",
+        "vpn", "adult website", "age verification", "dating app",
+        "test match", "odi match", "t20 match", "world cup final", "isl match",
+        "high court overturns", "arrested for", "shot dead", "drug trafficking",
     ]
 
     // MARK: - Chana-specific metal exclusions (line 121-123)

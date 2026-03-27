@@ -60,15 +60,21 @@ struct AgriPulseApp: App {
         _ = await NewsService.shared.refreshAll(context: context)
     }
 
-    /// Add any commodities from CommoditySeeds.all that don't exist in the database yet.
+    /// Add any new commodities and update search queries for existing ones.
     private static func syncNewCommodities(context: ModelContext) {
         let descriptor = FetchDescriptor<Commodity>()
         let existing = (try? context.fetch(descriptor)) ?? []
-        let existingNames = Set(existing.map(\.name))
+        let existingByName = Dictionary(uniqueKeysWithValues: existing.map { ($0.name, $0) })
 
-        var added = 0
+        var changed = 0
         for (index, seed) in CommoditySeeds.all.enumerated() {
-            if !existingNames.contains(seed.name) {
+            if let commodity = existingByName[seed.name] {
+                // Update search queries if they changed
+                if commodity.searchQueries != seed.searchQueries {
+                    commodity.searchQueries = seed.searchQueries
+                    changed += 1
+                }
+            } else {
                 let commodity = Commodity(
                     name: seed.name,
                     searchQueries: seed.searchQueries,
@@ -76,18 +82,18 @@ struct AgriPulseApp: App {
                     isSpecial: seed.isSpecial
                 )
                 context.insert(commodity)
-                added += 1
+                changed += 1
             }
         }
 
-        if added > 0 {
+        if changed > 0 {
             try? context.save()
         }
     }
 
-    /// One-time migration: strip HTML tags from all existing news snippets.
+    /// One-time migration: strip HTML tags and bare URLs from all existing news snippets.
     private static func migrateSnippets(context: ModelContext) {
-        let migrationKey = "snippetHTMLMigrationDone_v1"
+        let migrationKey = "snippetHTMLMigrationDone_v2"
         guard !UserDefaults.standard.bool(forKey: migrationKey) else { return }
 
         let descriptor = FetchDescriptor<NewsItem>()
@@ -95,7 +101,9 @@ struct AgriPulseApp: App {
 
         var cleaned = 0
         for item in items {
-            if item.snippet.contains("<") && item.snippet.contains(">") {
+            let hasHTML = item.snippet.contains("<") && item.snippet.contains(">")
+            let hasBareURL = item.snippet.contains("https://news.google.com/rss/articles/") || item.snippet.contains("https://")
+            if hasHTML || hasBareURL {
                 item.snippet = stripHTML(item.snippet)
                 cleaned += 1
             }

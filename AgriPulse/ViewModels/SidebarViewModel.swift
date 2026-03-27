@@ -34,9 +34,8 @@ final class SidebarViewModel {
     )
 
     private static var excludedFromLatest: Set<String> {
-        var excluded: Set<String> = ["Agri Weather"]
+        var excluded: Set<String> = ["Agri Weather", "PIB Updates", "Packaging", "DGFT Updates", "IMD / Advisories"]
         excluded.formUnion(equityNames)
-        excluded.formUnion(grainsNames)
         return excluded
     }
 

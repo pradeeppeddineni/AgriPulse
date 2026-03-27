@@ -15,12 +15,15 @@ enum CommoditySeeds {
         CommoditySeed(
             name: "Wheat",
             searchQueries: """
-            ("Wheat" OR "Atta" OR "Durum") AND (India OR FCI OR Procurement OR MSP OR Mandi OR Price OR Stock OR Import OR Export)
-            Wheat (farmers OR "record output" OR "harvest forecast" OR "bumper crop" OR "Rabi wheat" OR "wheat output" OR procurement) India
+            ("Wheat" OR "Atta" OR "Durum") AND (India OR FCI OR Procurement OR MSP OR Mandi OR Price OR Stock OR Import OR Export OR "crop situation" OR "wheat target" OR "wheat production")
+            Wheat (farmers OR "record output" OR "harvest forecast" OR "bumper crop" OR "Rabi wheat" OR "wheat output" OR procurement OR "Agriculture Minister" OR review OR minister) India
+            Wheat India ("unseasonal rain" OR hailstorm OR "crop damage" OR "crop loss" OR "crop destroyed" OR flatten OR lodging OR "weather damage" OR "strong winds" OR "standing crop")
+            Wheat (Punjab OR Haryana OR "Uttar Pradesh" OR UP OR "Madhya Pradesh" OR MP OR Rajasthan) India (mandi OR price OR damage OR procurement OR farmer OR yield OR arrival)
+            ("grain stock" OR "grain stocks" OR "foodgrain stock" OR "food grain" OR "surplus grain" OR "grain reserve") India (FCI OR government OR officials OR "food security")
             ("PP bag" OR "polypropylene bag" OR "jute bag" OR "procurement bag" OR "gunny bag") wheat (India OR MP OR "Madhya Pradesh" OR Punjab OR Haryana OR FCI OR procurement)
-            Wheat India (site:krishijagran.com OR site:agriwatch.com OR site:igrain.in OR site:ibef.org)
-            Wheat India (site:economictimes.indiatimes.com OR site:thehindu.com OR site:timesofindia.indiatimes.com OR site:tribuneindia.com OR site:freshplaza.com)
-            ("grain stock" OR "grain stocks" OR "foodgrain stock" OR "food grain" OR "surplus grain" OR "grain reserve") India (FCI OR government OR officials OR "food security") (site:hindustantimes.com OR site:economictimes.indiatimes.com OR site:thehindu.com OR site:timesofindia.indiatimes.com)
+            Wheat India (site:krishijagran.com OR site:agriwatch.com OR site:igrain.in OR site:ibef.org OR site:krishakjagat.net)
+            Wheat India (site:economictimes.indiatimes.com OR site:thehindu.com OR site:timesofindia.indiatimes.com OR site:tribuneindia.com OR site:livemint.com)
+            Wheat India (site:hindustantimes.com OR site:indianexpress.com OR site:ndtv.com OR site:businessline.com OR site:financialexpress.com)
             """,
             isSpecial: false
         ),
@@ -49,10 +52,12 @@ enum CommoditySeeds {
         CommoditySeed(
             name: "Chana",
             searchQueries: """
-            ("Chana" OR "Bengal Gram" OR "Desi Chana" OR "Kabuli Chana") AND (India OR NAFED OR MSP OR Procurement OR Mandi OR Price OR Stock) -groundnut -peanut -gold -silver
-            Chana gram pulse India import buffer stock price -gold -silver -bullion
+            ("Chana" OR "Bengal Gram" OR "Desi Chana" OR "Kabuli Chana" OR chickpea) AND (India OR NAFED OR MSP OR Procurement OR Mandi OR Price OR Stock OR Gujarat OR Karnataka OR Rajasthan) -groundnut -peanut -gold -silver
+            (gram OR chana OR chickpea OR "green gram") India MSP procurement (Gujarat OR "Andhra Pradesh" OR Karnataka OR Maharashtra OR Rajasthan OR NAFED OR NCCF) -gold -silver
+            Chana gram pulse India import buffer stock price arrivals -gold -silver -bullion
             Chana OR "Bengal Gram" India (site:krishijagran.com OR site:agriwatch.com OR site:igrain.in) -gold -silver
-            Chana India (site:economictimes.indiatimes.com OR site:thehindu.com OR site:timesofindia.indiatimes.com OR site:tribuneindia.com) -gold -silver
+            Chana India (site:economictimes.indiatimes.com OR site:thehindu.com OR site:timesofindia.indiatimes.com OR site:tribuneindia.com OR site:livemint.com) -gold -silver
+            (chana OR gram OR pulse) India (site:thehansindia.com OR site:lokmattimes.com OR site:telegraphindia.com OR site:deccanherald.com OR site:hindustantimes.com) -gold -silver
             pulses India (import OR export OR "duty-free" OR "duty free" OR policy OR procurement OR NAFED OR NCCF OR stock OR price OR MSP OR ban OR notification) -gold -silver
             """,
             isSpecial: false
@@ -64,6 +69,8 @@ enum CommoditySeeds {
             "Palm Oil" India import edible oil duty tariff price
             "Palm Oil" OR CPO (site:economictimes.indiatimes.com OR site:agriwatch.com OR site:thehindu.com OR site:freshplaza.com)
             "Palm Oil" (site:freshplaza.com OR site:freshfruitportal.com OR site:krishijagran.com)
+            "vegetable oil" India buyers import price (Iran OR rally OR market OR duty OR tariff OR edible)
+            ("edible oil" OR "vegetable oil") India import buyers Iran war rally (site:economictimes.indiatimes.com OR site:thehindu.com OR site:businessline.com OR site:livemint.com)
             """,
             isSpecial: false
         ),
@@ -82,18 +89,27 @@ enum CommoditySeeds {
             searchQueries: """
             ("Sugar" OR "Sugarcane" OR "Ethanol" OR FRP) AND (India OR ISMA OR NFCSF OR Mill OR Mandi OR Price OR Stock OR Export OR Quota)
             Sugar India mill production export diversion ethanol
+            ("sugar MSP" OR "sugar federation" OR "NFCSF" OR "FRP" OR "cane price" OR "fair remunerative price") India
+            Sugar India MSP subsidy government intervention quintal price policy
             Sugar India (site:krishijagran.com OR site:agriwatch.com OR site:igrain.in)
             Sugar India (site:economictimes.indiatimes.com OR site:thehindu.com OR site:timesofindia.indiatimes.com OR site:tribuneindia.com)
+            Sugar India (site:indianexpress.com OR site:livemint.com OR site:businessline.com OR site:financialexpress.com OR site:hindustantimes.com)
             """,
             isSpecial: false
         ),
         CommoditySeed(
             name: "Ethanol / DDGS",
             searchQueries: """
-            Ethanol India blending policy production OMC price
-            DDGS India import poultry feed price distillers grain
+            Ethanol India blending policy production OMC price target mandate
+            ("E20" OR "E10" OR "20 per cent blend" OR "20% blend" OR "blending mandate" OR "blending target") India ethanol (industry OR OMC OR government OR "crude import" OR petrol OR cost)
+            Ethanol India (industry OR producers OR distillery OR OMC OR "oil marketing") (push OR demand OR advocate OR target OR increase OR expand OR "higher blend")
+            ("flex fuel" OR "flex-fuel" OR "E100" OR "E-100" OR "higher blending" OR "biofuel policy") India ethanol petrol OMC
+            ("ethanol blending" OR "blending roadmap" OR "AIDA" OR "distillery" OR "sugarcane ethanol" OR "grain ethanol") India
+            DDGS India import poultry feed price distillers grain supply
             Ethanol OR DDGS India (site:economictimes.indiatimes.com OR site:thehindu.com OR site:timesofindia.indiatimes.com OR site:krishijagran.com)
-            Ethanol OR DDGS India (site:agriwatch.com OR site:igrain.in OR site:ibef.org)
+            Ethanol OR DDGS India (site:agriwatch.com OR site:igrain.in OR site:ibef.org OR site:livemint.com)
+            Ethanol India (site:telegraphindia.com OR site:hindustantimes.com OR site:indianexpress.com OR site:businessline.com OR site:financialexpress.com)
+            Ethanol India (site:chinimandi.com OR site:sugaronline.com OR site:bioenergytimes.com OR site:ndtv.com)
             """,
             isSpecial: false
         ),
@@ -217,8 +233,10 @@ enum CommoditySeeds {
             searchQueries: """
             Chilli India price mandi Guntur Kheda Warangal export
             "Chilli" OR "Red pepper" India crop arrival market
+            ("Indian chilli" OR "red chilli" OR "chilli export" OR "chilli crop") India (demand OR supply OR price OR output OR domestic OR overseas)
             Chilli India (site:agriwatch.com OR site:igrain.in OR site:krishijagran.com)
             Chilli India (site:economictimes.indiatimes.com OR site:thehindu.com OR site:timesofindia.indiatimes.com OR site:tribuneindia.com)
+            Chilli India (site:thehindubusinessline.com OR site:businessline.com OR site:financialexpress.com OR site:indianexpress.com OR site:livemint.com)
             """,
             isSpecial: false
         ),
@@ -330,25 +348,48 @@ enum CommoditySeeds {
         CommoditySeed(
             name: "Packaging",
             searchQueries: """
-            "food packaging" OR "flexible packaging" OR "BOPP" OR "BOPET" OR "laminates" India
-            "agri packaging" OR "food grade packaging" OR "FSSAI packaging" India
-            Packaging India food grain storage export (site:economictimes.indiatimes.com OR site:thehindu.com OR site:ibef.org)
+            "food packaging" India
+            "flexible packaging" India
+            "packaging industry" India
+            laminates India packaging
+            "BOPP" OR "BOPET" India packaging
+            "multilayer packaging" India
+            "agri packaging" OR "agricultural packaging" India
+            "packaging material" India food
+            "pouch" OR "sachet" India food packaging
+            "rigid packaging" OR "glass packaging" OR "tin packaging" India food
+            "glass bottle" OR "can makers" OR "aluminium can" OR "tin can" India shortage supply
+            brewers India glass bottle can shortage supply chain Iran war
             """,
             isSpecial: true
         ),
         CommoditySeed(
             name: "DGFT Updates",
             searchQueries: """
-            "DGFT" OR "Director General of Foreign Trade" India export import notification
-            DGFT India commodity export import policy trade (site:economictimes.indiatimes.com OR site:thehindu.com OR site:tribuneindia.com)
+            site:dgft.gov.in
+            "DGFT" notification India export import
+            "DGFT" circular "edible oil" OR "food" OR "agri"
+            "Director General of Foreign Trade" India commodity
+            "DGFT" export import policy India wheat OR rice OR sugar OR oil
+            "DGFT" trade notice India
             """,
             isSpecial: true
         ),
         CommoditySeed(
             name: "IMD / Advisories",
             searchQueries: """
-            "IMD" OR "ICAR" advisory India agriculture crop
-            IMD India crop advisory rainfall forecast (site:thehindu.com OR site:krishijagran.com OR site:agriwatch.com)
+            "IMD" India agricultural advisory crop
+            "India Meteorological Department" advisory farmer agriculture
+            "IMD" heatwave OR flood OR drought India crop impact
+            "IMD" monsoon forecast India 2026 agriculture
+            "ICAR" advisory India crop
+            "ICAR" research India wheat OR rice OR maize OR pulses
+            site:icar.org.in
+            "National Research Centre" India crop advisory
+            "agromet" advisory India
+            "crop advisory" India IMD OR ICAR OR state
+            "Krishi Vigyan Kendra" advisory India
+            "KVK" advisory crop India
             """,
             isSpecial: true
         ),
@@ -382,10 +423,13 @@ enum CommoditySeeds {
         CommoditySeed(
             name: "Currency",
             searchQueries: """
-            ("Indian rupee" OR "INR" OR "USD/INR") India forex exchange rate today
-            (rupee OR "rupee dollar" OR "rupee-dollar") (falls OR rises OR slides OR strengthens OR weakens OR depreciation) India
-            India forex market (RBI OR intervention OR reserves OR "capital flows") (site:economictimes.indiatimes.com OR site:livemint.com OR site:financialexpress.com)
-            ("exchange rate" OR "currency market" OR "forex" OR "remittance") India rupee dollar today
+            ("Indian rupee" OR "INR" OR "rupee") (dollar OR USD OR "exchange rate" OR forex) today
+            rupee (falls OR slides OR drops OR "record low" OR weakens OR depreciation OR pressure) dollar India
+            RBI intervention rupee forex market dollar (site:economictimes.indiatimes.com OR site:thehindu.com OR site:livemint.com OR site:businessline.com)
+            rupee dollar (site:ndtv.com OR site:moneycontrol.com OR site:financialexpress.com OR site:reuters.com OR site:upstox.com)
+            ("USD/INR" OR "INR/USD" OR "rupee-dollar" OR "rupee dollar") exchange rate RBI forex market
+            rupee (imported inflation OR remittance OR oil import OR current account) India impact
+            ("RBI" OR "Reserve Bank of India") (forex intervention OR dollar sales OR rupee support OR currency swap) India
             """,
             isSpecial: false
         ),

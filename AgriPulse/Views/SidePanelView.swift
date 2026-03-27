@@ -104,7 +104,9 @@ struct SidePanelView: View {
                         dismiss()
                     }
                     menuItem(icon: "cloud.sun.fill", label: "Agri Weather", badge: viewModel.weatherFreshCount) {
-                        onSelectTab(.weather)
+                        if let commodity = viewModel.commodity(named: "Agri Weather") {
+                            onSelectCommodity(commodity)
+                        }
                         dismiss()
                     }
                     menuItem(icon: "calendar", label: "Commodity Calendar") {

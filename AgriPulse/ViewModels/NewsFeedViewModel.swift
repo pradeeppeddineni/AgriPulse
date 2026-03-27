@@ -69,17 +69,10 @@ final class NewsFeedViewModel {
         }
     }
 
-    private static let excludedFromLatest: Set<String> = {
-        var excluded: Set<String> = [
-            "Agri Weather", "Indian Equity", "Global Equity", "Crypto", "Mutual Funds",
-            "PIB Updates", "Packaging", "DGFT Updates", "IMD / Advisories"
-        ]
-        // Also exclude grains group from Latest since they have their own tab
-        if let grainsGroup = CommoditySeeds.marketGroups.first(where: { $0.slug == "grains" }) {
-            excluded.formUnion(grainsGroup.commodities)
-        }
-        return excluded
-    }()
+    private static let excludedFromLatest: Set<String> = [
+        "Agri Weather", "Indian Equity", "Global Equity", "Crypto", "Mutual Funds",
+        "PIB Updates", "Packaging", "DGFT Updates", "IMD / Advisories"
+    ]
 
     func load(commodity: Commodity?, context: ModelContext) {
         self.commodity = commodity

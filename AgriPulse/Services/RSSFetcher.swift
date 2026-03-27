@@ -12,6 +12,10 @@ struct RSSArticle {
 func stripHTML(_ html: String) -> String {
     // Remove HTML tags
     var text = html.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+    // Remove bare Google News redirect URLs that remain after stripping <a> tags
+    text = text.replacingOccurrences(of: "https?://news\\.google\\.com/rss/articles/[^\\s]*", with: "", options: .regularExpression)
+    // Remove any other bare URLs left behind (e.g. https://... that aren't useful snippet text)
+    text = text.replacingOccurrences(of: "https?://\\S+", with: "", options: .regularExpression)
     // Decode common HTML entities
     let entities: [(String, String)] = [
         ("&amp;", "&"), ("&lt;", "<"), ("&gt;", ">"),
@@ -60,7 +64,7 @@ actor RSSFetcher {
             baseURL = "https://news.google.com/rss/search?q=\(encoded)&hl=en-IN&gl=IN&ceid=IN:en"
         }
 
-        let urlString = "\(baseURL)&tbs=qdr:h24"
+        let urlString = "\(baseURL)&tbs=qdr:d7"
         guard let url = URL(string: urlString) else { return [] }
 
         do {

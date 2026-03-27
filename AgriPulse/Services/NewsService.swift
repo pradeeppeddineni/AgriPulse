@@ -7,11 +7,22 @@ final class NewsService {
 
     private init() {}
 
-    /// Maximum article age: articles older than 30 days are skipped on fetch
+    /// Default article age: 30 days
     private static let maxArticleAgeDays = 30
 
     /// Wheat gets special 365-day retention
     private static let wheatRetentionDays = 365
+
+    /// Commodity-specific retention (days)
+    private static func retentionDays(for name: String) -> Int {
+        switch name {
+        case "Wheat": return wheatRetentionDays
+        case "DGFT Updates": return 90
+        case "PIB Updates": return 60
+        case "IMD / Advisories": return 60
+        default: return maxArticleAgeDays
+        }
+    }
 
     /// Fetch and filter news for a single commodity, inserting new items into SwiftData
     func refreshNews(for commodity: Commodity, context: ModelContext) async -> Int {
@@ -25,8 +36,9 @@ final class NewsService {
 
         let articles = await RSSFetcher.shared.fetchMultipleQueries(queries, isGlobal: isGlobal)
 
-        // Age cutoff: skip articles older than 30 days
-        let ageCutoff = Calendar.current.date(byAdding: .day, value: -Self.maxArticleAgeDays, to: Date()) ?? Date()
+        // Age cutoff: commodity-specific retention
+        let retDays = Self.retentionDays(for: commodity.name)
+        let ageCutoff = Calendar.current.date(byAdding: .day, value: -retDays, to: Date()) ?? Date()
 
         var insertedCount = 0
         for article in articles {
@@ -34,7 +46,9 @@ final class NewsService {
             if article.publishedAt < ageCutoff { continue }
 
             let fullText = "\(article.title) \(article.snippet)"
-            let articleIsGlobal = !NewsFilterEngine.mentionsIndia(fullText)
+            // Article-level India detection overrides query-level Global flag
+            let mentionsIndia = NewsFilterEngine.mentionsIndia(fullText)
+            let articleIsGlobal = !mentionsIndia
 
             // India-only filter
             if indiaOnly && articleIsGlobal { continue }
@@ -47,9 +61,23 @@ final class NewsService {
             // Dedup by link
             let linkToCheck = article.link
             let linkPredicate = #Predicate<NewsItem> { $0.link == linkToCheck }
-            let descriptor = FetchDescriptor<NewsItem>(predicate: linkPredicate)
-            let existing = (try? context.fetchCount(descriptor)) ?? 0
-            if existing > 0 { continue }
+            let linkDescriptor = FetchDescriptor<NewsItem>(predicate: linkPredicate)
+            let existingByLink = (try? context.fetchCount(linkDescriptor)) ?? 0
+            if existingByLink > 0 { continue }
+
+            // Dedup by normalized title (same commodity) — catches Google News redirect URL variants
+            let normalizedTitle = article.title
+                .lowercased()
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let commodityName = commodity.name
+            let titlePredicate = #Predicate<NewsItem> { $0.commodity?.name == commodityName }
+            var titleDescriptor = FetchDescriptor<NewsItem>(predicate: titlePredicate)
+            titleDescriptor.fetchLimit = 500
+            let sameCommodityItems = (try? context.fetch(titleDescriptor)) ?? []
+            let titleDuplicate = sameCommodityItems.contains { existing in
+                existing.title.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) == normalizedTitle
+            }
+            if titleDuplicate { continue }
 
             let newsItem = NewsItem(
                 title: article.title,
@@ -100,29 +128,18 @@ final class NewsService {
         return total
     }
 
-    /// Clean up news older than 30 days (default), with Wheat getting 365-day retention
+    /// Clean up news using commodity-specific retention periods
     func cleanupOldNews(context: ModelContext) {
-        // General cleanup: 30 days for all non-Wheat commodities
-        let cutoff30 = Calendar.current.date(byAdding: .day, value: -Self.maxArticleAgeDays, to: Date()) ?? Date()
-        let generalPredicate = #Predicate<NewsItem> { $0.publishedAt < cutoff30 && !$0.isSaved }
-        let generalDescriptor = FetchDescriptor<NewsItem>(predicate: generalPredicate)
-        if let old = try? context.fetch(generalDescriptor) {
-            for item in old {
-                // Skip Wheat articles — they get longer retention
-                if item.commodity?.name == "Wheat" { continue }
-                context.delete(item)
-            }
-        }
+        let descriptor = FetchDescriptor<NewsItem>()
+        guard let allItems = try? context.fetch(descriptor) else { return }
 
-        // Wheat-specific cleanup: 365 days
-        let cutoff365 = Calendar.current.date(byAdding: .day, value: -Self.wheatRetentionDays, to: Date()) ?? Date()
-        let wheatPredicate = #Predicate<NewsItem> { $0.publishedAt < cutoff365 && !$0.isSaved }
-        let wheatDescriptor = FetchDescriptor<NewsItem>(predicate: wheatPredicate)
-        if let old = try? context.fetch(wheatDescriptor) {
-            for item in old {
-                if item.commodity?.name == "Wheat" {
-                    context.delete(item)
-                }
+        for item in allItems {
+            guard !item.isSaved else { continue }
+            let name = item.commodity?.name ?? ""
+            let retDays = Self.retentionDays(for: name)
+            let cutoff = Calendar.current.date(byAdding: .day, value: -retDays, to: Date()) ?? Date()
+            if item.publishedAt < cutoff {
+                context.delete(item)
             }
         }
 

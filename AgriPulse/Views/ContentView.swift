@@ -14,7 +14,7 @@ struct ContentView: View {
     enum AppTab: String, CaseIterable {
         case latest = "Latest"
         case saved = "Saved"
-        case weather = "Weather"
+        case equity = "Equity"
         case grains = "Grains"
         case more = "More"
     }
@@ -103,13 +103,13 @@ struct ContentView: View {
                 .tag(AppTab.saved)
 
                 NavigationStack {
-                    NewsFeedView(commodity: sidebarVM.commodity(named: "Agri Weather"))
+                    EquityMarketView()
                 }
                 .tabItem {
-                    Label("Weather", systemImage: "cloud.sun.fill")
+                    Label("Equity", systemImage: "chart.line.uptrend.xyaxis")
                 }
-                .tag(AppTab.weather)
-                .badge(sidebarVM.weatherFreshCount)
+                .tag(AppTab.equity)
+                .badge(sidebarVM.equityFreshCount)
 
                 NavigationStack {
                     if let grainsGroup = CommoditySeeds.marketGroups.first(where: { $0.slug == "grains" }) {
@@ -165,9 +165,8 @@ struct ContentView: View {
                     showCalendarSheet = true
                 },
                 onSelectEquity: {
-                    moreDestination = .equity
                     showSidePanel = false
-                    selectedTab = .more
+                    selectedTab = .equity
                 }
             )
         }
@@ -182,8 +181,8 @@ struct ContentView: View {
             NewsFeedView(commodity: sidebarVM.selectedCommodity)
         case .saved:
             SavedArticlesView()
-        case .weather:
-            NewsFeedView(commodity: sidebarVM.commodity(named: "Agri Weather"))
+        case .equity:
+            EquityMarketView()
         case .grains:
             if let grainsGroup = CommoditySeeds.marketGroups.first(where: { $0.slug == "grains" }) {
                 CommodityGroupView(group: grainsGroup)
