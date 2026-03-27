@@ -109,7 +109,7 @@ struct NewsCardView: View {
                             RoundedRectangle(cornerRadius: 8)
                                 .stroke(AgriPulseTheme.primary.opacity(0.12), lineWidth: 1)
                         )
-                    } else if #available(iOS 18.1, *) {
+                    } else if #available(iOS 18.2, *) {
                         Button {
                             isSummarizing = true
                             onSummarize?()
