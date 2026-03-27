@@ -9,6 +9,40 @@ struct RSSArticle {
     let publishedAt: Date
 }
 
+private func stripHTML(_ html: String) -> String {
+    // Remove HTML tags
+    var text = html.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+    // Decode common HTML entities
+    let entities: [(String, String)] = [
+        ("&amp;", "&"), ("&lt;", "<"), ("&gt;", ">"),
+        ("&quot;", "\""), ("&#39;", "'"), ("&apos;", "'"),
+        ("&nbsp;", " "), ("&#x27;", "'"), ("&#x2F;", "/"),
+        ("&rsquo;", "\u{2019}"), ("&lsquo;", "\u{2018}"),
+        ("&rdquo;", "\u{201C}"), ("&ldquo;", "\u{201D}"),
+        ("&mdash;", "\u{2014}"), ("&ndash;", "\u{2013}"),
+        ("&hellip;", "\u{2026}"),
+    ]
+    for (entity, replacement) in entities {
+        text = text.replacingOccurrences(of: entity, with: replacement)
+    }
+    // Decode numeric entities (&#NNN;)
+    if let regex = try? NSRegularExpression(pattern: "&#(\\d+);") {
+        let range = NSRange(text.startIndex..., in: text)
+        let matches = regex.matches(in: text, range: range).reversed()
+        for match in matches {
+            if let numRange = Range(match.range(at: 1), in: text),
+               let code = UInt32(text[numRange]),
+               let scalar = Unicode.Scalar(code) {
+                let charRange = Range(match.range, in: text)!
+                text.replaceSubrange(charRange, with: String(Character(scalar)))
+            }
+        }
+    }
+    // Collapse whitespace and trim
+    text = text.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+    return text.trimmingCharacters(in: .whitespacesAndNewlines)
+}
+
 actor RSSFetcher {
     static let shared = RSSFetcher()
 
@@ -40,7 +74,7 @@ actor RSSFetcher {
                 return (rssFeed.items ?? []).compactMap { item -> RSSArticle? in
                     guard let link = item.link, !link.isEmpty else { return nil }
                     let title = item.title ?? "No Title"
-                    var snippet = item.description ?? ""
+                    var snippet = stripHTML(item.description ?? "")
                     if snippet.count > 500 { snippet = String(snippet.prefix(500)) + "..." }
                     let pubDate = item.pubDate ?? Date()
                     let source = item.source?.value ?? item.dublinCore?.dcCreator ?? "Google News"

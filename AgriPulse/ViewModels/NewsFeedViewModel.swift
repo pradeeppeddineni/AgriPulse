@@ -8,6 +8,7 @@ final class NewsFeedViewModel {
     var newsItems: [NewsItem] = []
     var isRefreshing = false
     var searchText = ""
+    var currentPage = 1
 
     var lastSyncedText: String? {
         guard let date = UserDefaults.standard.object(forKey: "lastSyncedAt") as? Date else { return nil }
@@ -20,6 +21,44 @@ final class NewsFeedViewModel {
 
     private var commodity: Commodity?
 
+    // Pagination config per commodity
+    private var pageSize: Int {
+        guard let name = commodity?.name else { return 0 }
+        switch name {
+        case "Wheat": return 50
+        case "PIB Updates": return 25
+        default: return 0  // 0 means no pagination
+        }
+    }
+
+    var isPaginated: Bool { pageSize > 0 }
+
+    var totalItems: Int { filteredItems.count }
+
+    var totalPages: Int {
+        guard isPaginated, pageSize > 0 else { return 1 }
+        return max(1, Int(ceil(Double(filteredItems.count) / Double(pageSize))))
+    }
+
+    var paginatedItems: [NewsItem] {
+        guard isPaginated, pageSize > 0 else { return filteredItems }
+        let start = (currentPage - 1) * pageSize
+        let end = min(start + pageSize, filteredItems.count)
+        guard start < filteredItems.count else { return [] }
+        return Array(filteredItems[start..<end])
+    }
+
+    var statusText: String {
+        if isRefreshing { return "Fetching latest..." }
+        let total = filteredItems.count
+        if isPaginated {
+            let start = (currentPage - 1) * pageSize + 1
+            let end = min(currentPage * pageSize, total)
+            return "\(start)-\(end) of \(total) updates · page \(currentPage) of \(totalPages)"
+        }
+        return "\(total) updates"
+    }
+
     var filteredItems: [NewsItem] {
         if searchText.isEmpty { return newsItems }
         let lower = searchText.lowercased()
@@ -30,28 +69,36 @@ final class NewsFeedViewModel {
         }
     }
 
-    private static let excludedFromLatest: Set<String> = [
-        "Agri Weather",
-        "Indian Equity",
-        "Global Equity",
-        "Crypto",
-        "Mutual Funds"
-    ]
+    private static let excludedFromLatest: Set<String> = {
+        var excluded: Set<String> = ["Agri Weather", "Indian Equity", "Global Equity", "Crypto", "Mutual Funds"]
+        // Also exclude grains group from Latest since they have their own tab
+        if let grainsGroup = CommoditySeeds.marketGroups.first(where: { $0.slug == "grains" }) {
+            excluded.formUnion(grainsGroup.commodities)
+        }
+        return excluded
+    }()
 
     func load(commodity: Commodity?, context: ModelContext) {
         self.commodity = commodity
+        currentPage = 1
 
         if let commodity {
-            // Load news for specific commodity
             let commodityName = commodity.name
             let predicate = #Predicate<NewsItem> { item in
                 item.commodity?.name == commodityName
             }
             var descriptor = FetchDescriptor<NewsItem>(predicate: predicate, sortBy: [SortDescriptor(\.publishedAt, order: .reverse)])
-            descriptor.fetchLimit = 200
+
+            // Wheat: 365-day window
+            if commodity.name == "Wheat" {
+                descriptor.fetchLimit = 5000
+            } else {
+                descriptor.fetchLimit = 200
+            }
+
             newsItems = (try? context.fetch(descriptor)) ?? []
         } else {
-            // Latest Updates: commodity news only (exclude equity and weather)
+            // Latest Updates: exclude equity, weather, grains
             var descriptor = FetchDescriptor<NewsItem>(sortBy: [SortDescriptor(\.publishedAt, order: .reverse)])
             descriptor.fetchLimit = 200
             let allItems = (try? context.fetch(descriptor)) ?? []
@@ -78,6 +125,13 @@ final class NewsFeedViewModel {
 
         load(commodity: commodity, context: context)
     }
+
+    func goToPage(_ page: Int) {
+        currentPage = max(1, min(page, totalPages))
+    }
+
+    func nextPage() { goToPage(currentPage + 1) }
+    func previousPage() { goToPage(currentPage - 1) }
 
     func toggleSave(_ item: NewsItem, context: ModelContext) {
         item.isSaved.toggle()

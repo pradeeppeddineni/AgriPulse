@@ -58,6 +58,7 @@ enum KeywordLists {
         "Global Equity":      ["dow jones", "s&p 500", "nasdaq", "wall street", "ftse", "nikkei", "dax", "hang seng", "global equity", "us market", "us stocks", "global market", "global stock", "s&p"],
         "Crypto":             ["bitcoin", "btc", "ethereum", "eth", "crypto", "cryptocurrency", "blockchain", "altcoin", "defi", "nft", "web3", "binance", "coinbase", "usdt", "stablecoin", "digital asset"],
         "Mutual Funds":       ["mutual fund", "nav", "sip", "amfi", "nfo", "fund house", "equity fund", "debt fund", "hybrid fund", "aum", "fund manager", "systematic investment"],
+        "Currency":           ["indian rupee", "rupee", "inr", "usd/inr", "inr/usd", "rupee dollar", "rupee-dollar", "forex", "rbi intervention", "rupee falls", "rupee slides", "rupee drops", "rupee weakens", "rupee depreciation", "exchange rate", "currency market", "imported inflation", "remittance", "dollar reserves"],
     ]
 
     // MARK: - Noise patterns (lines 95-111)
@@ -79,6 +80,17 @@ enum KeywordLists {
     // MARK: - Chana-specific metal exclusions (line 121-123)
     static let chanaMetalExclusions: [String] = [
         "gold", "silver", "antam", "karat", "bullion", "platinum", "jewelry", "jewellery", "precious metal",
+    ]
+
+    // MARK: - Commodity-specific exclusions (from Replit server/news.ts)
+    static let commoditySpecificExclusions: [String: [String]] = [
+        "Maize": ["cornrow", "cornea", "cornet", "corner kick", "cornerstone"],
+        "Wheat": ["grain of salt", "wood grain", "grain leather", "film grain"],
+        "Black pepper": ["pepper spray", "dr pepper", "dr. pepper", "pepper jack"],
+        "Chilli powder": ["red hot chili peppers", "chilli con carne", "chili con carne", "chilli cheese"],
+        "Cardamom": ["cardamom latte recipe", "cardamom tea recipe"],
+        "Onion": ["the onion", "onion ring recipe", "onion soup recipe"],
+        "Potato": ["couch potato", "hot potato", "potato chip recipe"],
     ]
 
     // MARK: - PIB commodity keywords (from pib.ts lines 7-25)

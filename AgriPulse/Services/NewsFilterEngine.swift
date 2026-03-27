@@ -25,6 +25,12 @@ enum NewsFilterEngine {
             }
         }
 
+        if let exclusions = KeywordLists.commoditySpecificExclusions[commodityName] {
+            if exclusions.contains(where: { lowerTitle.contains($0) }) {
+                return false
+            }
+        }
+
         // 3. Commodity keyword must appear in title
         guard let keywords = KeywordLists.commodityTitleKeywords[commodityName] else {
             return true // No filter defined — allow everything

@@ -379,6 +379,16 @@ enum CommoditySeeds {
             """,
             isSpecial: false
         ),
+        CommoditySeed(
+            name: "Currency",
+            searchQueries: """
+            ("Indian rupee" OR "INR" OR "USD/INR") India forex exchange rate today
+            (rupee OR "rupee dollar" OR "rupee-dollar") (falls OR rises OR slides OR strengthens OR weakens OR depreciation) India
+            India forex market (RBI OR intervention OR reserves OR "capital flows") (site:economictimes.indiatimes.com OR site:livemint.com OR site:financialexpress.com)
+            ("exchange rate" OR "currency market" OR "forex" OR "remittance") India rupee dollar today
+            """,
+            isSpecial: false
+        ),
     ]
 
     // MARK: - Equity commodities (ported from Commodity-Watcher-2 server/routes.ts lines 309-335)
@@ -434,25 +444,93 @@ enum CommoditySeeds {
         ),
     ]
 
+    // MARK: - Market groups (matching Replit commodity-groups.ts)
+
+    struct MarketGroup: Identifiable {
+        let id: String
+        let slug: String
+        let label: String
+        let subtitle: String
+        let icon: String  // SF Symbol
+        let commodities: [String]
+    }
+
+    static let marketGroups: [MarketGroup] = [
+        MarketGroup(id: "grains", slug: "grains", label: "Grains",
+                    subtitle: "Wheat · Maize · Paddy · Chana · Ethanol",
+                    icon: "leaf.fill",
+                    commodities: ["Wheat", "Maize", "Paddy", "Chana", "Ethanol / DDGS"]),
+        MarketGroup(id: "edible-oils", slug: "edible-oils", label: "Edible Oils",
+                    subtitle: "Palm Oil · Rice Bran · Soyabean · Sunflower · Cotton",
+                    icon: "drop.fill",
+                    commodities: ["Palm Oil", "Rice bran oil", "Soyabean / Oil", "Sunflower oil", "Cotton seed oil"]),
+        MarketGroup(id: "others", slug: "others", label: "Others",
+                    subtitle: "Crude · Precious Metals · Currency",
+                    icon: "chart.bar.fill",
+                    commodities: ["Crude", "Precious Metals", "Currency"]),
+        MarketGroup(id: "fresh", slug: "fresh", label: "Fresh",
+                    subtitle: "Potato · Cabbage · Ring Beans · Onion",
+                    icon: "leaf.circle.fill",
+                    commodities: ["Potato", "Cabbage / Carrot", "Ring beans", "Onion", "Potato (Mandi)"]),
+        MarketGroup(id: "dry-fruits", slug: "dry-fruits", label: "Dry Fruits",
+                    subtitle: "Cashew · Almond · Raisins · Groundnut · Oats · Psyllium",
+                    icon: "circle.grid.3x3.fill",
+                    commodities: ["Cashew", "Almond", "Raisins", "Groundnut", "Oats", "Psyllium / Isabgol"]),
+        MarketGroup(id: "spices", slug: "spices", label: "Spices",
+                    subtitle: "Chilli · Turmeric · Black Pepper · Cardamom",
+                    icon: "flame.fill",
+                    commodities: ["Chilli powder", "Turmeric", "Black pepper", "Cardamom"]),
+        MarketGroup(id: "others-1", slug: "others-1", label: "Others-1",
+                    subtitle: "Sugar · Milk & Dairy · Cocoa",
+                    icon: "shippingbox.fill",
+                    commodities: ["Sugar", "Milk / Dairy", "Cocoa"]),
+    ]
+
+    static func marketGroup(forSlug slug: String) -> MarketGroup? {
+        marketGroups.first { $0.slug == slug }
+    }
+
     // MARK: - Sidebar grouping
 
     enum Group: String, CaseIterable {
-        case command = "Command Centre"
-        case markets = "Markets"
-        case equity = "Equity & Finance"
+        case command = "Command"
+        case grains = "Grains"
+        case edibleOils = "Edible Oils"
+        case others = "Others"
+        case fresh = "Fresh"
+        case dryFruits = "Dry Fruits"
+        case spices = "Spices"
+        case others1 = "Others-1"
+        case equity = "Equity"
         case regulatory = "Regulatory"
     }
 
     static func group(for name: String) -> Group {
+        // Check market groups
+        for mg in marketGroups {
+            if mg.commodities.contains(name) {
+                switch mg.slug {
+                case "grains": return .grains
+                case "edible-oils": return .edibleOils
+                case "others": return .others
+                case "fresh": return .fresh
+                case "dry-fruits": return .dryFruits
+                case "spices": return .spices
+                case "others-1": return .others1
+                default: break
+                }
+            }
+        }
+        // Special categories
         switch name {
-        case "Agri Weather", "PIB Updates", "IMD / Advisories":
+        case "Agri Weather":
             return .command
-        case "DGFT Updates", "Packaging":
+        case "DGFT Updates", "Packaging", "PIB Updates", "IMD / Advisories":
             return .regulatory
         case "Indian Equity", "Global Equity", "Crypto", "Mutual Funds":
             return .equity
         default:
-            return .markets
+            return .grains
         }
     }
 }
