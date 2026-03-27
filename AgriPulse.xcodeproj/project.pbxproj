@@ -40,7 +40,20 @@
 		E10000010000000000000032 /* SidePanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000020000000000000032; };
 		E10000010000000000000050 /* FeedKit in Frameworks */ = {isa = PBXBuildFile; productRef = E10000030000000000000050; };
 		E10000010000000000000051 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = E10000030000000000000051; };
+		E20000010000000000000001 /* HTMLStrippingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000020000000000000001; };
+		E20000010000000000000002 /* NewsFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000020000000000000002; };
+		E20000010000000000000003 /* CommodityGroupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000020000000000000003; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E20000130000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E10000090000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E10000060000000000000001;
+			remoteInfo = AgriPulse;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		E10000020000000000000001 /* AgriPulseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgriPulseApp.swift; sourceTree = "<group>"; };
@@ -76,6 +89,10 @@
 		E10000020000000000000031 /* CommodityGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommodityGroupView.swift; sourceTree = "<group>"; };
 		E10000020000000000000032 /* SidePanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidePanelView.swift; sourceTree = "<group>"; };
 		E10000020000000000000099 /* AgriPulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AgriPulse.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E20000020000000000000001 /* HTMLStrippingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLStrippingTests.swift; sourceTree = "<group>"; };
+		E20000020000000000000002 /* NewsFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsFilterTests.swift; sourceTree = "<group>"; };
+		E20000020000000000000003 /* CommodityGroupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommodityGroupTests.swift; sourceTree = "<group>"; };
+		E20000020000000000000099 /* AgriPulseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AgriPulseTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +105,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E20000040000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -95,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				E10000050000000000000002 /* AgriPulse */,
+				E20000050000000000000001 /* AgriPulseTests */,
 				E10000050000000000000099 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -238,8 +263,19 @@
 			isa = PBXGroup;
 			children = (
 				E10000020000000000000099 /* AgriPulse.app */,
+				E20000020000000000000099 /* AgriPulseTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		E20000050000000000000001 /* AgriPulseTests */ = {
+			isa = PBXGroup;
+			children = (
+				E20000020000000000000001 /* HTMLStrippingTests.swift */,
+				E20000020000000000000002 /* NewsFilterTests.swift */,
+				E20000020000000000000003 /* CommodityGroupTests.swift */,
+			);
+			path = AgriPulseTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -266,6 +302,23 @@
 			productReference = E10000020000000000000099 /* AgriPulse.app */;
 			productType = "com.apple.product-type.application";
 		};
+		E20000060000000000000001 /* AgriPulseTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E20000080000000000000001 /* Build configuration list for PBXNativeTarget "AgriPulseTests" */;
+			buildPhases = (
+				E20000070000000000000001 /* Sources */,
+				E20000040000000000000001 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E20000120000000000000001 /* PBXTargetDependency */,
+			);
+			name = AgriPulseTests;
+			productName = AgriPulseTests;
+			productReference = E20000020000000000000099 /* AgriPulseTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -278,6 +331,10 @@
 				TargetAttributes = {
 					E10000060000000000000001 = {
 						CreatedOnToolsVersion = 15.4;
+					};
+					E20000060000000000000001 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = E10000060000000000000001;
 					};
 				};
 			};
@@ -299,6 +356,7 @@
 			projectRoot = "";
 			targets = (
 				E10000060000000000000001 /* AgriPulse */,
+				E20000060000000000000001 /* AgriPulseTests */,
 			);
 		};
 /* End PBXProject section */
@@ -352,7 +410,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E20000070000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E20000010000000000000001 /* HTMLStrippingTests.swift in Sources */,
+				E20000010000000000000002 /* NewsFilterTests.swift in Sources */,
+				E20000010000000000000003 /* CommodityGroupTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E20000120000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E10000060000000000000001 /* AgriPulse */;
+			targetProxy = E20000130000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		E10000110000000000000001 /* Debug */ = {
@@ -482,6 +558,46 @@
 			};
 			name = Release;
 		};
+		E20000110000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.agripulse.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AgriPulse.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AgriPulse";
+			};
+			name = Debug;
+		};
+		E20000110000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.agripulse.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AgriPulse.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AgriPulse";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -499,6 +615,15 @@
 			buildConfigurations = (
 				E10000110000000000000001 /* Debug */,
 				E10000110000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E20000080000000000000001 /* Build configuration list for PBXNativeTarget "AgriPulseTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E20000110000000000000001 /* Debug */,
+				E20000110000000000000002 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

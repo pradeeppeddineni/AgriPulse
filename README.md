@@ -1,18 +1,23 @@
 # AgriPulse
 
-A commodity intelligence app for Indian agricultural markets. Track news, prices, policy events, and equity data across 30+ commodities, built for farmers, traders, analysts, and agri professionals.
+A commodity intelligence app for Indian agricultural markets. Track news, prices, policy events, and equity data across 40+ commodities, built for farmers, traders, analysts, and agri professionals.
 
-Available on the App Store.
+[![App Store](https://img.shields.io/badge/App_Store-Available-blue?logo=apple)](https://apps.apple.com/app/agripulse/id6760972266)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-Codemagic-orange?logo=codemagic)](https://codemagic.io)
 
 ---
 
 ## What It Does
 
 **News Feed**
-Aggregates news from 50+ sources for each commodity using precision search queries. Sources include Economic Times, The Hindu, Krishi Jagran, AgriWatch, iGrain, Reuters, Bloomberg, LiveMint, PIB (Press Information Bureau), and more. No algorithm, no noise — just relevant commodity news filtered to what matters.
+Aggregates news from 50+ sources for each commodity using precision search queries. Sources include Economic Times, The Hindu, Krishi Jagran, AgriWatch, iGrain, Reuters, Bloomberg, LiveMint, PIB (Press Information Bureau), and more. Multi-layer relevance filtering removes noise — no recipes, no horoscopes, no irrelevant results.
+
+**Commodity Groups**
+Commodities organized into 7 market groups — Grains, Edible Oils, Others, Fresh Produce, Dry Fruits, Spices, and Others-1 — each with horizontal sub-tab navigation for quick switching between related commodities.
 
 **Equity and Markets**
-Tracks Nifty, Sensex, BSE, NSE, global equity indices, crypto, and commodity-linked mutual funds. Keeps agri market movements alongside the broader financial context.
+Tracks Indian equity (Nifty, Sensex), global indices, crypto, and commodity-linked mutual funds with dedicated sub-tabs per category.
 
 **Commodity Calendar**
 130+ key dates including USDA reports, RBI policy decisions, crop sowing and harvest seasons, MSP announcements, import/export policy windows, and government procurement cycles.
@@ -23,8 +28,19 @@ IMD forecasts, El Nino/La Nina outlook, and monsoon updates relevant to crop pla
 **Save and Export**
 Bookmark articles and export them as PDFs for offline use, reporting, or sharing.
 
-**Commodities Covered**
-Wheat, Maize, Paddy/Rice, Chana, Tur Dal, Urad Dal, Moong Dal, Masoor Dal, Soybean, Mustard/Rapeseed, Groundnut, Sunflower, Castor, Cotton, Sugarcane/Sugar, Onion, Potato, Tomato, Palm Oil, Guar, Cumin, Turmeric, Coriander, Pepper, Cardamom, and more.
+**Commodities Covered (40+)**
+
+| Group | Commodities |
+|-------|-------------|
+| Grains | Wheat, Maize, Paddy/Rice, Chana, Ethanol/DDGS |
+| Edible Oils | Palm Oil, Rice Bran Oil, Soyabean, Sunflower, Cotton Seed Oil |
+| Others | Crude, Precious Metals, Currency |
+| Fresh | Potato, Cabbage/Carrot, Ring Beans, Onion |
+| Dry Fruits | Cashew, Almond, Raisins, Groundnut, Oats, Psyllium |
+| Spices | Chilli, Turmeric, Black Pepper, Cardamom |
+| Others-1 | Sugar, Milk/Dairy, Cocoa |
+| Equity | Indian Equity, Global Equity, Crypto, Mutual Funds |
+| Regulatory | Packaging, PIB Updates, DGFT Updates, IMD Advisories |
 
 ---
 
@@ -34,8 +50,10 @@ Wheat, Maize, Paddy/Rice, Chana, Tur Dal, Urad Dal, Moong Dal, Masoor Dal, Soybe
 - No ads. No tracking. No analytics SDKs.
 - All data stored locally on device only.
 - Works on iPhone and iPad with adaptive layout (TabView on iPhone, NavigationSplitView on iPad).
-- Dark theme by default.
+- Dark theme by default with glassmorphism-inspired surfaces.
 - Background refresh for up-to-date news without opening the app.
+- 6-tab navigation: Latest, Saved, Weather, Grains, Equity, More.
+- Side panel (More tab) for full commodity access with Command/Markets/Regulatory sections.
 
 ---
 
@@ -46,9 +64,10 @@ Wheat, Maize, Paddy/Rice, Chana, Tur Dal, Urad Dal, Moong Dal, Masoor Dal, Soybe
 | Language | Swift 5.9+ |
 | UI Framework | SwiftUI |
 | Persistence | SwiftData |
-| Networking | URLSession + RSS parsing |
-| News Sources | Google News RSS, PIB.gov.in, direct RSS feeds |
-| CI/CD | Codemagic |
+| Networking | URLSession + FeedKit (RSS parsing) |
+| HTML Parsing | SwiftSoup (PIB scraping) |
+| News Sources | Google News RSS, PIB.gov.in |
+| CI/CD | Codemagic (Mac Mini M2, auto TestFlight) |
 | Minimum iOS | iOS 17 |
 | Platforms | iPhone, iPad |
 
@@ -58,36 +77,48 @@ Wheat, Maize, Paddy/Rice, Chana, Tur Dal, Urad Dal, Moong Dal, Masoor Dal, Soybe
 
 ```
 AgriPulse/
-├── AgriPulseApp.swift          # App entry point, SwiftData container setup
+├── AgriPulseApp.swift              # App entry point, SwiftData setup
 ├── Constants/
-│   ├── CommoditySeeds.swift    # Commodity definitions and search queries
-│   ├── CalendarEvents.swift    # Agricultural calendar event data
-│   └── KeywordLists.swift      # Filter keywords per commodity
+│   ├── CommoditySeeds.swift        # 40+ commodity definitions, search queries, MarketGroup
+│   ├── CalendarEvents.swift        # 130+ agricultural calendar events
+│   └── KeywordLists.swift          # Per-commodity keywords, noise filters
 ├── Models/
-│   ├── Commodity.swift         # SwiftData commodity model
-│   ├── NewsItem.swift          # SwiftData news article model
-│   └── CalendarEvent.swift     # Calendar event model
+│   ├── Commodity.swift             # SwiftData commodity model
+│   ├── NewsItem.swift              # SwiftData news article model
+│   └── CalendarEvent.swift         # Calendar event model
 ├── Services/
-│   ├── NewsService.swift       # Main news orchestration
-│   ├── RSSFetcher.swift        # RSS feed fetching and parsing
-│   ├── PIBService.swift        # Press Information Bureau integration
-│   ├── NewsFilterEngine.swift  # Relevance filtering logic
-│   └── BackgroundRefreshManager.swift  # Background fetch handling
+│   ├── NewsService.swift           # News orchestration + refresh
+│   ├── RSSFetcher.swift            # RSS fetching, HTML stripping, dedup
+│   ├── PIBService.swift            # Press Information Bureau scraping
+│   ├── NewsFilterEngine.swift      # Relevance + noise filtering
+│   └── BackgroundRefreshManager.swift
 ├── ViewModels/
-│   ├── NewsFeedViewModel.swift
-│   ├── EquityViewModel.swift
-│   ├── CalendarViewModel.swift
+│   ├── NewsFeedViewModel.swift     # News feed + pagination logic
+│   ├── EquityViewModel.swift       # Equity market data
+│   ├── CalendarViewModel.swift     # Calendar event filtering
 │   ├── SavedArticlesViewModel.swift
-│   └── SidebarViewModel.swift
+│   └── SidebarViewModel.swift      # Group-level fresh counts
 ├── Views/
-│   ├── ContentView.swift       # Root view, iPhone/iPad layout switching
-│   ├── SidebarView.swift       # iPad sidebar commodity selector
-│   ├── News/                   # News feed and article card views
-│   ├── Equity/                 # Market and equity views
-│   ├── Calendar/               # Commodity calendar view
-│   └── Saved/                  # Bookmarks and PDF export
+│   ├── ContentView.swift           # 6-tab layout, side panel integration
+│   ├── SidebarView.swift           # iPad sidebar (Command/Markets/Regulatory)
+│   ├── SidePanelView.swift         # iPhone side panel (slides from left)
+│   ├── Groups/
+│   │   └── CommodityGroupView.swift  # Generic group view with sub-tabs
+│   ├── News/
+│   │   ├── NewsFeedView.swift      # News list + pagination controls
+│   │   └── NewsCardView.swift      # Article card (age badges, accent bars)
+│   ├── Equity/
+│   │   └── EquityMarketView.swift  # Equity sub-tabs (Indian/Global/Crypto/MF)
+│   ├── Calendar/
+│   │   └── CommodityCalendarView.swift
+│   ├── Saved/
+│   │   ├── SavedArticlesView.swift
+│   │   └── PDFExportView.swift
+│   └── Common/
+│       ├── BadgeViews.swift
+│       └── RefreshButton.swift
 └── Theme/
-    └── AgriPulseTheme.swift    # Colors, fonts, design tokens
+    └── AgriPulseTheme.swift        # Colors, fonts, age-level styling
 ```
 
 ---
@@ -105,7 +136,19 @@ cd AgriPulse
 open AgriPulse.xcodeproj
 ```
 
-Build and run on your target device or simulator. No additional dependencies or package manager setup required.
+Build and run on your target device or simulator. Swift Package Manager resolves FeedKit and SwiftSoup automatically.
+
+---
+
+## CI/CD
+
+Builds are handled by [Codemagic](https://codemagic.io) on Mac Mini M2 cloud machines:
+
+```
+git push → Codemagic triggers → Resolve packages → Code sign → Build IPA → Upload to TestFlight
+```
+
+Build numbers auto-increment from the latest TestFlight build. See `codemagic.yaml` for the full pipeline.
 
 ---
 
@@ -123,7 +166,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## Contributing
 
-Issues and pull requests are welcome. If you want to add a commodity, improve search queries for an existing one, or add a news source, the best place to start is `Constants/CommoditySeeds.swift`.
+Issues and pull requests are welcome. To add a commodity or improve search queries, start with `Constants/CommoditySeeds.swift`. To add a news source or adjust filtering, see `Services/RSSFetcher.swift` and `Constants/KeywordLists.swift`.
 
 ---
 
