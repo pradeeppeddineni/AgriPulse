@@ -120,6 +120,9 @@ final class NewsFeedViewModel {
         }
 
         load(commodity: commodity, context: context)
+
+        // Progressively enrich snippets and AI summaries in background
+        SnippetEnrichmentService.shared.enrichInBackground(context: context)
     }
 
     func goToPage(_ page: Int) {
