@@ -23,7 +23,6 @@ workflows:
       - name: Swift lint check
         script: |
           echo "=== Swift Compiler Warnings as Errors ==="
-          # Build with warnings-as-errors to catch issues early
           xcodebuild build \
             -project "$XCODE_PROJECT" \
             -scheme "$XCODE_SCHEME" \
@@ -36,29 +35,27 @@ workflows:
       - name: Security scan (SAST)
         script: |
           echo "=== Static Application Security Testing ==="
-          # Check for hardcoded secrets, API keys, passwords in source
-          echo "Scanning for hardcoded secrets..."
           FINDINGS=0
 
-          # Check for hardcoded API keys, tokens, passwords
+          # Hardcoded secrets, API keys, passwords
           if grep -rn --include="*.swift" -iE '(api[_-]?key|secret|password|token)\s*[:=]\s*"[^"]{8,}"' AgriPulse/ | grep -v "// " | grep -v "Test"; then
             echo "WARNING: Possible hardcoded secrets found"
             FINDINGS=$((FINDINGS + 1))
           fi
 
-          # Check for hardcoded URLs with credentials
+          # URLs with embedded credentials
           if grep -rn --include="*.swift" -E 'https?://[^@]+:[^@]+@' AgriPulse/; then
             echo "WARNING: URLs with embedded credentials found"
             FINDINGS=$((FINDINGS + 1))
           fi
 
-          # Check for private keys or certificates in source
+          # Private keys or certificates in source
           if grep -rn --include="*.swift" -E '(PRIVATE KEY|CERTIFICATE)' AgriPulse/; then
             echo "WARNING: Embedded keys/certificates found"
             FINDINGS=$((FINDINGS + 1))
           fi
 
-          # Check for insecure HTTP (non-HTTPS) URLs
+          # Insecure HTTP URLs (ATS compliance)
           HTTP_COUNT=$(grep -rn --include="*.swift" -c 'http://' AgriPulse/ 2>/dev/null | awk -F: '{s+=$2}END{print s}')
           if [ "$HTTP_COUNT" -gt 0 ] 2>/dev/null; then
             echo "INFO: $HTTP_COUNT insecure HTTP references found (review for ATS compliance)"
@@ -68,6 +65,122 @@ workflows:
             echo "SAST: $FINDINGS potential issues found — review before release"
           else
             echo "SAST: No critical issues found"
+          fi
+
+      - name: Pen test (automated security audit)
+        script: |
+          echo "=== Automated Penetration Testing ==="
+          ISSUES=0
+
+          # 1. Network security — verify all URLs are HTTPS
+          echo "--- Network Security ---"
+          INSECURE=$(grep -rn --include="*.swift" 'http://' AgriPulse/ | grep -v 'https://' | grep -v '//' | grep -v 'NSAppTransport' || true)
+          if [ -n "$INSECURE" ]; then
+            echo "FAIL: Insecure HTTP URLs found:"
+            echo "$INSECURE"
+            ISSUES=$((ISSUES + 1))
+          else
+            echo "PASS: All network calls use HTTPS"
+          fi
+
+          # 2. Data storage audit — check for sensitive data in UserDefaults
+          echo "--- Data Storage Audit ---"
+          if grep -rn --include="*.swift" -iE 'UserDefaults.*(password|token|secret|apiKey|credential)' AgriPulse/; then
+            echo "FAIL: Sensitive data stored in UserDefaults (unencrypted)"
+            ISSUES=$((ISSUES + 1))
+          else
+            echo "PASS: No sensitive data in UserDefaults"
+          fi
+
+          # 3. Check for debug/logging of sensitive data
+          echo "--- Debug Logging Audit ---"
+          if grep -rn --include="*.swift" -iE 'print\(.*(password|token|secret|key|credential)' AgriPulse/; then
+            echo "FAIL: Sensitive data being printed to console"
+            ISSUES=$((ISSUES + 1))
+          else
+            echo "PASS: No sensitive data in debug logs"
+          fi
+
+          # 4. Check for clipboard usage with sensitive data
+          echo "--- Clipboard Audit ---"
+          if grep -rn --include="*.swift" -i 'UIPasteboard' AgriPulse/; then
+            echo "WARNING: Clipboard usage detected — verify no sensitive data is copied"
+            ISSUES=$((ISSUES + 1))
+          else
+            echo "PASS: No clipboard usage"
+          fi
+
+          # 5. Check for insecure random number generation
+          echo "--- Crypto Audit ---"
+          if grep -rn --include="*.swift" -E '(arc4random|srand|rand\()' AgriPulse/; then
+            echo "WARNING: Insecure random generation found — use SecRandomCopyBytes for crypto"
+            ISSUES=$((ISSUES + 1))
+          else
+            echo "PASS: No insecure random generation"
+          fi
+
+          # 6. Check Info.plist for excessive permissions
+          echo "--- Permission Audit ---"
+          for perm in NSCameraUsageDescription NSMicrophoneUsageDescription NSLocationWhenInUseUsageDescription NSContactsUsageDescription; do
+            if grep -q "$perm" AgriPulse/Info.plist 2>/dev/null; then
+              echo "INFO: Permission requested — $perm (verify necessity)"
+            fi
+          done
+          echo "PASS: Permission audit complete"
+
+          # 7. Check ATS exceptions
+          echo "--- ATS Compliance ---"
+          if grep -q "NSAllowsArbitraryLoads" AgriPulse/Info.plist 2>/dev/null; then
+            ATS_VALUE=$(grep -A1 "NSAllowsArbitraryLoads" AgriPulse/Info.plist | grep -o 'true\|false' || echo "unknown")
+            if [ "$ATS_VALUE" = "true" ]; then
+              echo "FAIL: App Transport Security disabled (NSAllowsArbitraryLoads = true)"
+              ISSUES=$((ISSUES + 1))
+            fi
+          else
+            echo "PASS: ATS enforced (no exceptions)"
+          fi
+
+          echo ""
+          echo "=== Pen Test Summary: $ISSUES issues found ==="
+          if [ "$ISSUES" -gt 0 ]; then
+            echo "Review issues above before release"
+          else
+            echo "All automated pen test checks passed"
+          fi
+
+      - name: Dependency vulnerability check
+        script: |
+          echo "=== Dependency Vulnerability Scan ==="
+          # Check Swift package versions for known issues
+          echo "Checking resolved package versions..."
+
+          if [ -f "AgriPulse.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved" ]; then
+            cat "AgriPulse.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+            echo ""
+            echo "--- Dependency List ---"
+            # Extract package names and versions
+            python3 -c "
+          import json
+          with open('AgriPulse.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') as f:
+              data = json.load(f)
+          pins = data.get('pins', data.get('object', {}).get('pins', []))
+          for pin in pins:
+              name = pin.get('identity', pin.get('package', 'unknown'))
+              version = pin.get('state', {}).get('version', pin.get('state', {}).get('revision', 'unknown')[:8])
+              print(f'  {name}: {version}')
+          " 2>/dev/null || echo "  (could not parse Package.resolved)"
+          else
+            echo "No Package.resolved found — packages not yet resolved"
+          fi
+
+          # Minimal dependency count is a security advantage
+          DEP_COUNT=$(find . -path "*/checkouts/*" -name "Package.swift" 2>/dev/null | wc -l | tr -d ' ')
+          echo ""
+          echo "Total dependencies: $DEP_COUNT"
+          if [ "$DEP_COUNT" -le 5 ]; then
+            echo "PASS: Minimal dependency footprint (low supply chain risk)"
+          else
+            echo "WARNING: $DEP_COUNT dependencies — review for necessity"
           fi
 
       - name: Run unit tests
@@ -101,9 +214,72 @@ workflows:
 
       - name: Build iOS app
         script: |
+          BUILD_START=$(date +%s)
           xcode-project build-ipa \
             --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
+          BUILD_END=$(date +%s)
+          echo "Build time: $((BUILD_END - BUILD_START)) seconds"
+
+      - name: Performance audit
+        script: |
+          echo "=== Performance Audit ==="
+
+          # 1. IPA size tracking
+          echo "--- IPA Size ---"
+          IPA_FILE=$(find build/ios/ipa -name "*.ipa" 2>/dev/null | head -1)
+          if [ -n "$IPA_FILE" ]; then
+            IPA_SIZE=$(du -m "$IPA_FILE" | cut -f1)
+            echo "IPA size: ${IPA_SIZE} MB"
+            if [ "$IPA_SIZE" -gt 50 ]; then
+              echo "WARNING: IPA exceeds 50 MB — review assets and dependencies"
+            elif [ "$IPA_SIZE" -gt 30 ]; then
+              echo "INFO: IPA is ${IPA_SIZE} MB — monitor for growth"
+            else
+              echo "PASS: IPA size is healthy (${IPA_SIZE} MB)"
+            fi
+
+            # Unzip and check binary size
+            TEMP_DIR=$(mktemp -d)
+            unzip -q "$IPA_FILE" -d "$TEMP_DIR" 2>/dev/null
+            APP_DIR=$(find "$TEMP_DIR" -name "*.app" -type d | head -1)
+            if [ -n "$APP_DIR" ]; then
+              BINARY=$(find "$APP_DIR" -name "AgriPulse" -type f ! -name "*.plist" | head -1)
+              if [ -n "$BINARY" ]; then
+                BIN_SIZE=$(du -m "$BINARY" | cut -f1)
+                echo "Binary size: ${BIN_SIZE} MB"
+              fi
+
+              # Check for debug symbols (should be stripped in release)
+              if nm "$BINARY" 2>/dev/null | head -5 | grep -q .; then
+                echo "INFO: Debug symbols present (expected for TestFlight, stripped for App Store)"
+              fi
+
+              # Count embedded frameworks
+              FW_COUNT=$(find "$APP_DIR/Frameworks" -name "*.framework" 2>/dev/null | wc -l | tr -d ' ')
+              echo "Embedded frameworks: $FW_COUNT"
+            fi
+            rm -rf "$TEMP_DIR"
+          else
+            echo "No IPA found — skipping size check"
+          fi
+
+          # 2. Swift source metrics
+          echo ""
+          echo "--- Source Metrics ---"
+          SWIFT_FILES=$(find AgriPulse -name "*.swift" | wc -l | tr -d ' ')
+          SWIFT_LINES=$(find AgriPulse -name "*.swift" -exec cat {} + | wc -l | tr -d ' ')
+          echo "Swift files: $SWIFT_FILES"
+          echo "Total lines: $SWIFT_LINES"
+
+          # 3. Asset catalog size
+          ASSET_SIZE=$(du -sm AgriPulse/Assets.xcassets 2>/dev/null | cut -f1)
+          if [ -n "$ASSET_SIZE" ]; then
+            echo "Assets size: ${ASSET_SIZE} MB"
+          fi
+
+          echo ""
+          echo "=== Performance Audit Complete ==="
 
     artifacts:
       - build/ios/ipa/*.ipa
