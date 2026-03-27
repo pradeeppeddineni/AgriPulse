@@ -156,6 +156,7 @@ struct EquityMarketView: View {
 
 private struct EquityTabContent: View {
     let commodity: Commodity
+    @Environment(\.modelContext) private var modelContext
 
     var sortedNews: [NewsItem] {
         (commodity.newsItems ?? []).sorted { $0.publishedAt > $1.publishedAt }
@@ -179,7 +180,10 @@ private struct EquityTabContent: View {
         } else {
             LazyVStack(spacing: 0) {
                 ForEach(Array(sortedNews.enumerated()), id: \.element.id) { index, item in
-                    NewsCardView(item: item, commodityName: commodity.name)
+                    NewsCardView(item: item, commodityName: commodity.name, onToggleSave: {
+                        item.isSaved.toggle()
+                        try? modelContext.save()
+                    })
                         .padding(.horizontal, 12)
                         .padding(.vertical, 4)
                         .transition(.opacity.combined(with: .move(edge: .bottom)))
