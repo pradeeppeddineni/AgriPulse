@@ -9,7 +9,7 @@ struct RSSArticle {
     let publishedAt: Date
 }
 
-private func stripHTML(_ html: String) -> String {
+func stripHTML(_ html: String) -> String {
     // Remove HTML tags
     var text = html.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
     // Decode common HTML entities

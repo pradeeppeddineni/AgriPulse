@@ -12,8 +12,9 @@ struct AgriPulseApp: App {
             let container = try ModelContainer(for: schema, configurations: [config])
             modelContainer = container
 
-            // Seed commodities synchronously so they're available before UI appears
             let context = container.mainContext
+
+            // Seed commodities on first launch
             let descriptor = FetchDescriptor<Commodity>()
             let count = (try? context.fetchCount(descriptor)) ?? 0
             if count == 0 {
@@ -27,6 +28,12 @@ struct AgriPulseApp: App {
                     context.insert(commodity)
                 }
                 try? context.save()
+            } else {
+                // Sync: add any new commodities that don't exist yet (e.g. Currency in v1.2)
+                Self.syncNewCommodities(context: context)
+
+                // One-time migration: strip HTML from existing snippets
+                Self.migrateSnippets(context: context)
             }
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
@@ -51,5 +58,53 @@ struct AgriPulseApp: App {
 
         // No news yet — fetch everything on first launch
         _ = await NewsService.shared.refreshAll(context: context)
+    }
+
+    /// Add any commodities from CommoditySeeds.all that don't exist in the database yet.
+    private static func syncNewCommodities(context: ModelContext) {
+        let descriptor = FetchDescriptor<Commodity>()
+        let existing = (try? context.fetch(descriptor)) ?? []
+        let existingNames = Set(existing.map(\.name))
+
+        var added = 0
+        for (index, seed) in CommoditySeeds.all.enumerated() {
+            if !existingNames.contains(seed.name) {
+                let commodity = Commodity(
+                    name: seed.name,
+                    searchQueries: seed.searchQueries,
+                    sortOrder: index,
+                    isSpecial: seed.isSpecial
+                )
+                context.insert(commodity)
+                added += 1
+            }
+        }
+
+        if added > 0 {
+            try? context.save()
+        }
+    }
+
+    /// One-time migration: strip HTML tags from all existing news snippets.
+    private static func migrateSnippets(context: ModelContext) {
+        let migrationKey = "snippetHTMLMigrationDone_v1"
+        guard !UserDefaults.standard.bool(forKey: migrationKey) else { return }
+
+        let descriptor = FetchDescriptor<NewsItem>()
+        let items = (try? context.fetch(descriptor)) ?? []
+
+        var cleaned = 0
+        for item in items {
+            if item.snippet.contains("<") && item.snippet.contains(">") {
+                item.snippet = stripHTML(item.snippet)
+                cleaned += 1
+            }
+        }
+
+        if cleaned > 0 {
+            try? context.save()
+        }
+
+        UserDefaults.standard.set(true, forKey: migrationKey)
     }
 }
