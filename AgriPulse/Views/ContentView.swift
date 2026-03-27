@@ -209,57 +209,84 @@ struct ContentView: View {
         switch moreDestination {
         case .equity:
             EquityMarketView()
+                .toolbar { moreToolbarItems }
         case .group(let slug):
             if let group = CommoditySeeds.marketGroup(forSlug: slug) {
                 CommodityGroupView(group: group)
+                    .toolbar { moreToolbarItems }
             }
         case .commodity(let name):
             NewsFeedView(commodity: sidebarVM.commodity(named: name))
+                .toolbar { moreToolbarItems }
         case nil:
-            // Landing page — prompt to open side panel
-            VStack(spacing: 20) {
-                Spacer()
+            moreLandingPage
+        }
+    }
 
-                Image(systemName: "square.grid.2x2")
-                    .font(.system(size: 44))
-                    .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.25))
+    // Toolbar buttons for navigated More content — back + menu
+    @ToolbarContentBuilder
+    private var moreToolbarItems: some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            Button {
+                moreDestination = nil
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                    showSidePanel = true
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 12, weight: .semibold))
+                    Text("More")
+                        .font(.system(size: 15, weight: .medium))
+                }
+                .foregroundStyle(AgriPulseTheme.primary)
+            }
+        }
+    }
 
-                Text("All Commodities")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.6))
+    private var moreLandingPage: some View {
+        VStack(spacing: 20) {
+            Spacer()
 
+            Image(systemName: "square.grid.2x2")
+                .font(.system(size: 44))
+                .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.25))
+
+            Text("All Commodities")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.6))
+
+            Button {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                    showSidePanel = true
+                }
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: "line.3.horizontal")
+                    Text("Browse Commodities")
+                }
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(AgriPulseTheme.primaryForeground)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .background(AgriPulseTheme.primary)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(AgriPulseTheme.background)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
                         showSidePanel = true
                     }
                 } label: {
-                    HStack(spacing: 8) {
-                        Image(systemName: "line.3.horizontal")
-                        Text("Browse Commodities")
-                    }
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(AgriPulseTheme.primaryForeground)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .background(AgriPulseTheme.primary)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                }
-
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(AgriPulseTheme.background)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
-                            showSidePanel = true
-                        }
-                    } label: {
-                        Image(systemName: "line.3.horizontal")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(AgriPulseTheme.primary)
-                    }
+                    Image(systemName: "line.3.horizontal")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(AgriPulseTheme.primary)
                 }
             }
         }
