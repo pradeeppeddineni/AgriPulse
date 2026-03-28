@@ -4,9 +4,7 @@ import SwiftData
 struct SavedArticlesView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = SavedArticlesViewModel()
-    @State private var showingExport = false
     @State private var showingDatePicker = false
-    @State private var pdfData: Data?
     @State private var exportStartDate = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
     @State private var exportEndDate = Date()
 
@@ -54,7 +52,7 @@ struct SavedArticlesView: View {
         .sheet(isPresented: $showingDatePicker) {
             NavigationStack {
                 VStack(spacing: 20) {
-                    Text("Select Date Range")
+                    Text("Export Saved Articles")
                         .font(.headline)
                         .foregroundStyle(AgriPulseTheme.foreground)
                         .padding(.top, 8)
@@ -64,29 +62,32 @@ struct SavedArticlesView: View {
                     DatePicker("To", selection: $exportEndDate, displayedComponents: .date)
                         .datePickerStyle(.compact)
 
-                    let filteredCount = viewModel.savedItems.filter {
+                    let articlesInRange = viewModel.savedItems.filter {
                         $0.publishedAt >= exportStartDate && $0.publishedAt <= exportEndDate
-                    }.count
+                    }
 
-                    Text("\(filteredCount) articles in range")
+                    Text("\(articlesInRange.count) articles in range")
                         .font(.subheadline)
                         .foregroundStyle(AgriPulseTheme.mutedForeground)
 
                     Button {
                         viewModel.exportDateRange = (exportStartDate, exportEndDate)
-                        pdfData = viewModel.generatePDF()
+                        let pdfData = viewModel.generatePDF()
                         showingDatePicker = false
-                        showingExport = true
+                        sharePDF(data: pdfData)
                     } label: {
-                        Text("Export PDF")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(AgriPulseTheme.primary)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        HStack(spacing: 8) {
+                            Image(systemName: "square.and.arrow.up")
+                            Text("Share PDF (\(articlesInRange.count) articles)")
+                        }
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(AgriPulseTheme.primary)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
-                    .disabled(filteredCount == 0)
+                    .disabled(articlesInRange.isEmpty)
 
                     Spacer()
                 }
@@ -100,13 +101,34 @@ struct SavedArticlesView: View {
             }
             .preferredColorScheme(.dark)
         }
-        .sheet(isPresented: $showingExport) {
-            if let pdfData {
-                PDFExportView(pdfData: pdfData, articleCount: viewModel.filteredItems.count)
-            }
-        }
         .onAppear {
             viewModel.load(context: modelContext)
+        }
+    }
+
+    private func sharePDF(data: Data) {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let fileName = "AgriPulse_Articles_\(dateFormatter.string(from: Date())).pdf"
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+
+        do {
+            try data.write(to: tempURL)
+        } catch {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let activityVC = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let rootVC = windowScene.windows.first?.rootViewController {
+                var presenter = rootVC
+                while let presented = presenter.presentedViewController {
+                    presenter = presented
+                }
+                activityVC.popoverPresentationController?.sourceView = presenter.view
+                presenter.present(activityVC, animated: true)
+            }
         }
     }
 

@@ -45,8 +45,7 @@ struct NewsCardView: View {
     var body: some View {
         let (level, ageLabel) = AgeLevel.from(publishedAt: item.publishedAt)
 
-        Link(destination: URL(string: item.link) ?? URL(string: "https://google.com")!) {
-            VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 10) {
                 // Accent bar for breaking/hot/fresh
                 if level == .breaking || level == .hot || level == .fresh {
                     Rectangle()
@@ -219,13 +218,15 @@ struct NewsCardView: View {
                         }
                         .buttonStyle(.plain)
 
-                        HStack(spacing: 3) {
-                            Text("Read")
-                            Image(systemName: "arrow.up.right")
-                                .font(.system(size: 9))
+                        Link(destination: URL(string: item.link) ?? URL(string: "https://google.com")!) {
+                            HStack(spacing: 3) {
+                                Text("Read")
+                                Image(systemName: "arrow.up.right")
+                                    .font(.system(size: 9))
+                            }
+                            .font(.system(size: 10.5, weight: .semibold))
+                            .foregroundStyle(AgriPulseTheme.primary.opacity(0.7))
                         }
-                        .font(.system(size: 10.5, weight: .semibold))
-                        .foregroundStyle(AgriPulseTheme.primary.opacity(0.7))
                     }
                 }
                 .padding(.horizontal, 14)
@@ -238,14 +239,17 @@ struct NewsCardView: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(level.accentColor.opacity(level == .normal || level == .old ? 0.12 : 0.25), lineWidth: 1)
             )
-        }
-        .buttonStyle(.plain)
-        .opacity(appeared ? 1 : 0)
-        .onAppear {
-            withAnimation(.easeOut(duration: 0.3).delay(Double(min(index, 10)) * 0.04)) {
-                appeared = true
+            .onTapGesture {
+                if let url = URL(string: item.link) {
+                    UIApplication.shared.open(url)
+                }
             }
-        }
+            .opacity(appeared ? 1 : 0)
+            .onAppear {
+                withAnimation(.easeOut(duration: 0.3).delay(Double(min(index, 10)) * 0.04)) {
+                    appeared = true
+                }
+            }
     }
 }
 
