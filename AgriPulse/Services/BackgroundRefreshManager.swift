@@ -67,6 +67,7 @@ final class BackgroundRefreshManager {
                     (title: item.title,
                      source: item.source,
                      commodity: item.commodity?.name ?? "News",
+                     link: item.link,
                      publishedAt: item.publishedAt)
                 }
                 NotificationService.shared.notifyBreakingArticles(notifications)

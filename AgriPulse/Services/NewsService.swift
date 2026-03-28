@@ -145,6 +145,7 @@ final class NewsService {
             let commodity: String
             let source: String
             let age: String
+            let link: String
         }
 
         let articles = recent.map { item -> WidgetArticle in
@@ -161,7 +162,8 @@ final class NewsService {
                 title: item.title,
                 commodity: item.commodity?.name ?? "News",
                 source: item.source,
-                age: age
+                age: age,
+                link: item.link
             )
         }
 

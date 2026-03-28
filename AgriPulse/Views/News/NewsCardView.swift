@@ -27,15 +27,17 @@ struct NewsCardView: View {
             || normalizedSnippet.hasPrefix(normalizedTitle)
     }
 
+    /// Custom encoding that also encodes *, _, ~ (WhatsApp formatting chars) and &, #, +
+    private static let shareEncodingAllowed: CharacterSet = {
+        var allowed = CharacterSet.urlQueryAllowed
+        allowed.remove(charactersIn: "*_~`&+#")
+        return allowed
+    }()
+
     private func formatShareText(url: String) -> String {
         let snippetLine = item.snippet.isEmpty || isSnippetDuplicateOfTitle ? "" : "\n\(item.snippet)\n"
         let commodityLine = commodityName.map { " · \($0)" } ?? ""
-        return """
-        *\(item.title)*
-        \(snippetLine)
-        \(item.source)\(commodityLine) · via AgriPulse
-        \(url)
-        """
+        return "*\(item.title)*\n\(snippetLine)\(item.source)\(commodityLine) · via AgriPulse\n\(url)"
     }
 
     private func shareArticle() {
@@ -62,18 +64,10 @@ struct NewsCardView: View {
         Task {
             let articleURL = await resolveRedirect(item.link)
             let shareText = formatShareText(url: articleURL)
-            guard let encoded = shareText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-                  let url = URL(string: "whatsapp://send?text=\(encoded)") else { return }
-
-            await MainActor.run {
-                if UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url)
-                } else {
-                    // Fallback to web WhatsApp
-                    if let webURL = URL(string: "https://api.whatsapp.com/send?text=\(encoded)") {
-                        UIApplication.shared.open(webURL)
-                    }
-                }
+            guard let encoded = shareText.addingPercentEncoding(withAllowedCharacters: Self.shareEncodingAllowed) else { return }
+            // Universal link with web fallback if WhatsApp not installed
+            if let url = URL(string: "https://wa.me/?text=\(encoded)") {
+                await MainActor.run { UIApplication.shared.open(url) }
             }
         }
     }
@@ -82,18 +76,11 @@ struct NewsCardView: View {
         Task {
             let articleURL = await resolveRedirect(item.link)
             let shareText = formatShareText(url: articleURL)
-            guard let encoded = shareText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-                  let url = URL(string: "tg://msg?text=\(encoded)") else { return }
-
-            await MainActor.run {
-                if UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url)
-                } else {
-                    // Fallback to web Telegram
-                    if let webURL = URL(string: "https://t.me/share/url?url=\(articleURL)&text=\(encoded)") {
-                        UIApplication.shared.open(webURL)
-                    }
-                }
+            guard let encodedText = shareText.addingPercentEncoding(withAllowedCharacters: Self.shareEncodingAllowed),
+                  let encodedURL = articleURL.addingPercentEncoding(withAllowedCharacters: Self.shareEncodingAllowed) else { return }
+            // Universal link with web fallback if Telegram not installed
+            if let url = URL(string: "https://t.me/share/url?url=\(encodedURL)&text=\(encodedText)") {
+                await MainActor.run { UIApplication.shared.open(url) }
             }
         }
     }

@@ -46,9 +46,13 @@ struct AgriPulseApp: App {
             ContentView()
                 .modelContainer(modelContainer)
                 .task {
+                    NotificationService.shared.setup()
                     await initialRefreshIfNeeded(context: modelContainer.mainContext)
                     requestReviewIfNeeded()
-                    NotificationService.shared.requestPermission()
+                    // Start with provisional (quiet) notifications — no prompt shown
+                    NotificationService.shared.requestProvisionalPermission()
+                    // After 3+ sessions, upgrade to full notifications
+                    NotificationService.shared.upgradePermissionIfNeeded()
                 }
         }
     }

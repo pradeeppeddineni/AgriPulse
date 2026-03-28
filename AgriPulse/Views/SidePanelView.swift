@@ -9,6 +9,8 @@ struct SidePanelView: View {
     let onShowCalendar: () -> Void
     var onSelectEquity: (() -> Void)?
 
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     private let panelWidth: CGFloat = 290
 
     var body: some View {
@@ -24,13 +26,18 @@ struct SidePanelView: View {
                     .frame(width: panelWidth)
                     .background {
                         ZStack {
-                            // Base: ultra-thin material for glassmorphism
-                            Rectangle()
-                                .fill(.ultraThinMaterial)
-                                .environment(\.colorScheme, .dark)
+                            if reduceTransparency {
+                                // Solid fallback for accessibility
+                                AgriPulseTheme.sidebar
+                            } else {
+                                // Base: ultra-thin material for glassmorphism
+                                Rectangle()
+                                    .fill(.ultraThinMaterial)
+                                    .environment(\.colorScheme, .dark)
 
-                            // Overlay: deep navy tint for brand consistency
-                            AgriPulseTheme.sidebar.opacity(0.82)
+                                // Overlay: deep navy tint for brand consistency
+                                AgriPulseTheme.sidebar.opacity(0.82)
+                            }
 
                             // Gradient accent along the top
                             LinearGradient(
