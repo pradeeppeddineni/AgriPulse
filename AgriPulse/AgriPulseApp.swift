@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import StoreKit
 
 @main
 struct AgriPulseApp: App {
@@ -46,7 +47,25 @@ struct AgriPulseApp: App {
                 .modelContainer(modelContainer)
                 .task {
                     await initialRefreshIfNeeded(context: modelContainer.mainContext)
+                    requestReviewIfNeeded()
                 }
+        }
+    }
+
+    private func requestReviewIfNeeded() {
+        let key = "appSessionCount"
+        let lastReviewKey = "lastReviewRequestDate"
+        let count = UserDefaults.standard.integer(forKey: key) + 1
+        UserDefaults.standard.set(count, forKey: key)
+
+        // Show after 5th session, max once per 90 days
+        guard count >= 5 else { return }
+        if let lastDate = UserDefaults.standard.object(forKey: lastReviewKey) as? Date,
+           Date().timeIntervalSince(lastDate) < 90 * 86400 { return }
+
+        if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+            SKStoreReviewController.requestReview(in: scene)
+            UserDefaults.standard.set(Date(), forKey: lastReviewKey)
         }
     }
 

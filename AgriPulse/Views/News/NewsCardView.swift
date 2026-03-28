@@ -193,6 +193,19 @@ struct NewsCardView: View {
 
                         Spacer()
 
+                        // Share button
+                        if let url = URL(string: item.link) {
+                            ShareLink(
+                                item: "*\(item.title)*\n\(item.snippet.isEmpty ? "" : "\(item.snippet)\n")\n\(item.source) · via AgriPulse\n\(item.link)",
+                                preview: SharePreview(item.title, image: Image(systemName: "newspaper"))
+                            ) {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
+                            }
+                            .buttonStyle(.plain)
+                        }
+
                         HStack(spacing: 3) {
                             Text("Read")
                             Image(systemName: "arrow.up.right")

@@ -8,6 +8,7 @@ import PDFKit
 final class SavedArticlesViewModel {
     var savedItems: [NewsItem] = []
     var searchText = ""
+    var exportDateRange: (start: Date, end: Date)?
 
     var filteredItems: [NewsItem] {
         if searchText.isEmpty { return savedItems }
@@ -29,6 +30,13 @@ final class SavedArticlesViewModel {
         item.isSaved = false
         try? context.save()
         load(context: context)
+    }
+
+    var exportItems: [NewsItem] {
+        if let range = exportDateRange {
+            return filteredItems.filter { $0.publishedAt >= range.start && $0.publishedAt <= range.end }
+        }
+        return filteredItems
     }
 
     func generatePDF() -> Data {
@@ -67,12 +75,12 @@ final class SavedArticlesViewModel {
             // Date range
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "d MMM yyyy"
-            let dates = filteredItems.compactMap { $0.publishedAt }
+            let dates = exportItems.compactMap { $0.publishedAt }
             let dateRange: String
             if let earliest = dates.min(), let latest = dates.max() {
-                dateRange = "\(dateFormatter.string(from: earliest)) — \(dateFormatter.string(from: latest)) · \(filteredItems.count) articles"
+                dateRange = "\(dateFormatter.string(from: earliest)) — \(dateFormatter.string(from: latest)) · \(exportItems.count) articles"
             } else {
-                dateRange = "\(filteredItems.count) articles"
+                dateRange = "\(exportItems.count) articles"
             }
 
             let subtitleAttrs: [NSAttributedString.Key: Any] = [
@@ -105,7 +113,7 @@ final class SavedArticlesViewModel {
                 .foregroundColor: UIColor.tertiaryLabel,
             ]
 
-            for item in filteredItems {
+            for item in exportItems {
                 let titleRect = (item.title as NSString).boundingRect(
                     with: CGSize(width: contentWidth, height: .greatestFiniteMagnitude),
                     options: [.usesLineFragmentOrigin, .usesFontLeading],

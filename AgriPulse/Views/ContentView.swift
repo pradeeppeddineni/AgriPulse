@@ -142,7 +142,7 @@ struct ContentView: View {
                 }
             }
 
-            // Side panel overlay — on top of everything
+            // Side panel overlay — on top of everything (swipe right from edge to open)
             SidePanelView(
                 isPresented: $showSidePanel,
                 viewModel: sidebarVM,
@@ -170,6 +170,19 @@ struct ContentView: View {
                 }
             )
         }
+        .gesture(
+            DragGesture(minimumDistance: 30, coordinateSpace: .global)
+                .onEnded { value in
+                    let horizontalAmount = value.translation.width
+                    let verticalAmount = abs(value.translation.height)
+                    // Swipe right from left edge to open panel
+                    if horizontalAmount > 60 && verticalAmount < 100 && value.startLocation.x < 50 {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.85)) {
+                            showSidePanel = true
+                        }
+                    }
+                }
+        )
     }
 
     // MARK: - Tab Content

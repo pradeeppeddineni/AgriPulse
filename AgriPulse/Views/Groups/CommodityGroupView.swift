@@ -5,7 +5,12 @@ struct CommodityGroupView: View {
     let group: CommoditySeeds.MarketGroup
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = GroupViewModel()
-    @State private var activeTab: String = ""
+    @AppStorage private var activeTab: String
+
+    init(group: CommoditySeeds.MarketGroup) {
+        self.group = group
+        _activeTab = AppStorage(wrappedValue: group.commodities.first ?? "", "lastTab_\(group.slug)")
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -80,7 +85,8 @@ struct CommodityGroupView: View {
         .background(AgriPulseTheme.background)
         .onAppear {
             viewModel.load(context: modelContext, commodityNames: group.commodities)
-            if activeTab.isEmpty, let first = group.commodities.first {
+            // Validate stored tab is still in this group
+            if !group.commodities.contains(activeTab), let first = group.commodities.first {
                 activeTab = first
             }
         }
