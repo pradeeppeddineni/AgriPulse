@@ -153,7 +153,7 @@ struct NewsCardView: View {
                         } label: {
                             Image(systemName: item.isSaved ? "bookmark.fill" : "bookmark")
                                 .font(.system(size: 13))
-                                .foregroundStyle(item.isSaved ? AgriPulseTheme.primary : AgriPulseTheme.mutedForeground.opacity(0.4))
+                                .foregroundStyle(item.isSaved ? AgriPulseTheme.primary : AgriPulseTheme.mutedForeground.opacity(0.7))
                         }
                         .buttonStyle(.plain)
                     }
@@ -169,7 +169,7 @@ struct NewsCardView: View {
                     if !item.snippet.isEmpty && !isSnippetDuplicateOfTitle {
                         Text(item.snippet)
                             .font(.system(size: 12))
-                            .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(level == .old ? 0.4 : 0.75))
+                            .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(level == .old ? 0.65 : 0.9))
                             .lineLimit(2)
                     }
 
@@ -184,14 +184,14 @@ struct NewsCardView: View {
                                 HStack(spacing: 5) {
                                     Image(systemName: "sparkles")
                                         .font(.system(size: 10))
-                                        .foregroundStyle(AgriPulseTheme.primary.opacity(0.7))
+                                        .foregroundStyle(AgriPulseTheme.primary)
                                     Text("AI Summary")
                                         .font(.system(size: 10, weight: .semibold))
-                                        .foregroundStyle(AgriPulseTheme.primary.opacity(0.7))
+                                        .foregroundStyle(AgriPulseTheme.primary)
                                     Spacer()
                                     Image(systemName: summaryExpanded ? "chevron.up" : "chevron.down")
                                         .font(.system(size: 9))
-                                        .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
+                                        .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.8))
                                 }
                                 if summaryExpanded {
                                     Text(summary)
@@ -224,7 +224,7 @@ struct NewsCardView: View {
                                 if isSummarizing {
                                     ProgressView()
                                         .controlSize(.mini)
-                                        .tint(AgriPulseTheme.primary.opacity(0.7))
+                                        .tint(AgriPulseTheme.primary)
                                 } else {
                                     Image(systemName: "sparkles")
                                         .font(.system(size: 10))
@@ -232,7 +232,7 @@ struct NewsCardView: View {
                                 Text(isSummarizing ? "Summarizing..." : "Summarize")
                                     .font(.system(size: 10.5, weight: .semibold))
                             }
-                            .foregroundStyle(AgriPulseTheme.primary.opacity(0.7))
+                            .foregroundStyle(AgriPulseTheme.primary)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 5)
                             .background(AgriPulseTheme.primary.opacity(0.08))
@@ -252,7 +252,7 @@ struct NewsCardView: View {
                     HStack {
                         Text(item.source)
                             .font(.system(size: 11, weight: .semibold))
-                            .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(level == .old ? 0.3 : 0.55))
+                            .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(level == .old ? 0.6 : 0.9))
                             .textCase(.uppercase)
                             .lineLimit(1)
 
@@ -264,7 +264,7 @@ struct NewsCardView: View {
                         } label: {
                             Image(systemName: "square.and.arrow.up")
                                 .font(.system(size: 11))
-                                .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
+                                .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.8))
                         }
                         .buttonStyle(.plain)
 
@@ -275,7 +275,7 @@ struct NewsCardView: View {
                                     .font(.system(size: 9))
                             }
                             .font(.system(size: 10.5, weight: .semibold))
-                            .foregroundStyle(AgriPulseTheme.primary.opacity(0.7))
+                            .foregroundStyle(AgriPulseTheme.primary)
                         }
                     }
                 }

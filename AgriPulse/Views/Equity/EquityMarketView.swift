@@ -39,7 +39,7 @@ struct EquityMarketView: View {
                                 .foregroundStyle(AgriPulseTheme.foreground)
                             Text("Indian · Global · Crypto · Mutual Funds")
                                 .font(.system(size: 11))
-                                .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
+                                .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.8))
                         }
                     }
 
@@ -146,7 +146,7 @@ struct EquityMarketView: View {
                     .stroke(isActive ? AgriPulseTheme.primary.opacity(0.25) : Color.clear, lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 8))
-            .foregroundStyle(isActive ? AgriPulseTheme.primary : AgriPulseTheme.mutedForeground.opacity(0.55))
+            .foregroundStyle(isActive ? AgriPulseTheme.primary : AgriPulseTheme.mutedForeground)
         }
         .buttonStyle(.plain)
     }

@@ -10,7 +10,7 @@ enum AgriPulseTheme {
     static let primaryForeground = Color(hue: 223/360, saturation: 0.55, brightness: 0.10)
     static let secondary        = Color(hue: 223/360, saturation: 0.34, brightness: 0.13)
     static let muted            = Color(hue: 223/360, saturation: 0.34, brightness: 0.11)
-    static let mutedForeground  = Color(hue: 214/360, saturation: 0.24, brightness: 0.62)
+    static let mutedForeground  = Color(hue: 214/360, saturation: 0.14, brightness: 0.78)
     static let accent           = Color(hue: 223/360, saturation: 0.34, brightness: 0.14)
     static let destructive      = Color(hue: 0/360,   saturation: 0.72, brightness: 0.55)
     static let border           = Color(hue: 223/360, saturation: 0.30, brightness: 0.17)
@@ -61,7 +61,7 @@ enum AgeLevel: String {
         case .hot:      return AgriPulseTheme.hotAmber
         case .fresh:    return AgriPulseTheme.freshEmerald
         case .normal:   return AgriPulseTheme.mutedForeground
-        case .old:      return AgriPulseTheme.mutedForeground.opacity(0.5)
+        case .old:      return AgriPulseTheme.mutedForeground.opacity(0.7)
         }
     }
 
@@ -80,8 +80,8 @@ enum AgeLevel: String {
         case .breaking: return 1.0
         case .hot:      return 0.95
         case .fresh:    return 0.92
-        case .normal:   return 0.88
-        case .old:      return 0.72
+        case .normal:   return 0.95
+        case .old:      return 0.85
         }
     }
 

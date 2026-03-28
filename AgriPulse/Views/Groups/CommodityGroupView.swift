@@ -31,7 +31,7 @@ struct CommodityGroupView: View {
                                 .foregroundStyle(AgriPulseTheme.foreground)
                             Text(group.subtitle)
                                 .font(.system(size: 11))
-                                .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
+                                .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.8))
                         }
                     }
 
@@ -114,7 +114,7 @@ struct CommodityGroupView: View {
             HStack(spacing: 6) {
                 Image(systemName: group.icon)
                     .font(.system(size: 12))
-                    .foregroundStyle(isActive ? AgriPulseTheme.primary : AgriPulseTheme.mutedForeground.opacity(0.4))
+                    .foregroundStyle(isActive ? AgriPulseTheme.primary : AgriPulseTheme.mutedForeground.opacity(0.7))
 
                 Text(name)
                     .font(.system(size: 12, weight: .semibold))
@@ -141,7 +141,7 @@ struct CommodityGroupView: View {
                     .stroke(isActive ? AgriPulseTheme.primary.opacity(0.25) : Color.clear, lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 8))
-            .foregroundStyle(isActive ? AgriPulseTheme.primary : AgriPulseTheme.mutedForeground.opacity(0.55))
+            .foregroundStyle(isActive ? AgriPulseTheme.primary : AgriPulseTheme.mutedForeground)
         }
         .buttonStyle(.plain)
     }
