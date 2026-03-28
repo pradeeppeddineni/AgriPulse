@@ -49,20 +49,44 @@ struct NewsCardView: View {
     }
 
     /// Follow redirects to resolve Google News URLs to actual article URLs.
+    /// Google News uses a server-side page that redirects via JS/meta-refresh,
+    /// so we do a full GET and check both the final response URL and any
+    /// data-redirect attribute or meta refresh tag in the HTML body.
     private func resolveRedirect(_ urlString: String) async -> String {
         guard let url = URL(string: urlString),
               urlString.contains("news.google.com") else { return urlString }
 
         do {
-            var request = URLRequest(url: url, timeoutInterval: 5)
-            request.httpMethod = "HEAD"
+            var request = URLRequest(url: url, timeoutInterval: 10)
+            request.httpMethod = "GET"
+            request.setValue("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1", forHTTPHeaderField: "User-Agent")
 
-            let delegate = RedirectCaptureDelegate()
-            let session = URLSession(configuration: .ephemeral, delegate: delegate, delegateQueue: nil)
-            _ = try await session.data(for: request)
-            session.invalidateAndCancel()
+            let (data, response) = try await URLSession.shared.data(for: request)
 
-            return delegate.finalURL?.absoluteString ?? urlString
+            // 1. Check if the response URL itself resolved away from Google News
+            if let finalURL = (response as? HTTPURLResponse)?.url ?? response.url,
+               !finalURL.absoluteString.contains("news.google.com") {
+                return finalURL.absoluteString
+            }
+
+            // 2. Parse HTML body for redirect clues
+            if let html = String(data: data, encoding: .utf8) {
+                // Look for data-n-au="https://..." attribute (Google News article URL)
+                if let range = html.range(of: #"data-n-au="([^"]+)""#, options: .regularExpression),
+                   let urlRange = html.range(of: #"(?<=data-n-au=")[^"]+"#, options: .regularExpression) {
+                    let _ = range // suppress unused warning
+                    return String(html[urlRange])
+                }
+                // Look for <a href="..."> with an article URL
+                if let urlRange = html.range(of: #"<a[^>]+href="(https?://(?!news\.google\.com)[^"]+)"#, options: .regularExpression) {
+                    let match = String(html[urlRange])
+                    if let hrefRange = match.range(of: #"https?://[^"]+"#, options: .regularExpression) {
+                        return String(match[hrefRange])
+                    }
+                }
+            }
+
+            return urlString
         } catch {
             return urlString
         }
@@ -279,15 +303,6 @@ struct NewsCardView: View {
     }
 }
 
-/// Captures the final redirected URL from a chain of HTTP redirects.
-private final class RedirectCaptureDelegate: NSObject, URLSessionTaskDelegate {
-    var finalURL: URL?
-
-    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
-        finalURL = request.url
-        completionHandler(request)
-    }
-}
 
 struct AgeBadge: View {
     let level: AgeLevel
