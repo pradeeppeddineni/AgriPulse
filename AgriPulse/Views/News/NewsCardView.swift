@@ -27,18 +27,44 @@ struct NewsCardView: View {
     }
 
     private func shareArticle() {
-        let snippetLine = item.snippet.isEmpty || isSnippetDuplicateOfTitle ? "" : "\(item.snippet)\n\n"
-        let shareText = "*\(item.title)*\n\n\(snippetLine)\(item.source) · via AgriPulse\n\(item.link)"
-        let activityVC = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
+        // Resolve Google News redirect URL to get the actual article URL
+        Task {
+            let articleURL = await resolveRedirect(item.link)
+            let snippetLine = item.snippet.isEmpty || isSnippetDuplicateOfTitle ? "" : "\(item.snippet)\n\n"
+            let shareText = "*\(item.title)*\n\n\(snippetLine)\(item.source) · via AgriPulse\n\(articleURL)"
 
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootVC = windowScene.windows.first?.rootViewController {
-            var presenter = rootVC
-            while let presented = presenter.presentedViewController {
-                presenter = presented
+            await MainActor.run {
+                let activityVC = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let rootVC = windowScene.windows.first?.rootViewController {
+                    var presenter = rootVC
+                    while let presented = presenter.presentedViewController {
+                        presenter = presented
+                    }
+                    activityVC.popoverPresentationController?.sourceView = presenter.view
+                    presenter.present(activityVC, animated: true)
+                }
             }
-            activityVC.popoverPresentationController?.sourceView = presenter.view
-            presenter.present(activityVC, animated: true)
+        }
+    }
+
+    /// Follow redirects to resolve Google News URLs to actual article URLs.
+    private func resolveRedirect(_ urlString: String) async -> String {
+        guard let url = URL(string: urlString),
+              urlString.contains("news.google.com") else { return urlString }
+
+        do {
+            var request = URLRequest(url: url, timeoutInterval: 5)
+            request.httpMethod = "HEAD"
+
+            let delegate = RedirectCaptureDelegate()
+            let session = URLSession(configuration: .ephemeral, delegate: delegate, delegateQueue: nil)
+            _ = try await session.data(for: request)
+            session.invalidateAndCancel()
+
+            return delegate.finalURL?.absoluteString ?? urlString
+        } catch {
+            return urlString
         }
     }
 
@@ -250,6 +276,16 @@ struct NewsCardView: View {
                     appeared = true
                 }
             }
+    }
+}
+
+/// Captures the final redirected URL from a chain of HTTP redirects.
+private final class RedirectCaptureDelegate: NSObject, URLSessionTaskDelegate {
+    var finalURL: URL?
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest, completionHandler: @escaping (URLRequest?) -> Void) {
+        finalURL = request.url
+        completionHandler(request)
     }
 }
 
