@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import WidgetKit
 
 @MainActor
 final class NewsService {
@@ -125,7 +126,51 @@ final class NewsService {
             }
         }
 
+        // Update widget data
+        updateWidgetData(context: context)
+
         return total
+    }
+
+    /// Write latest breaking articles to shared UserDefaults for the widget
+    func updateWidgetData(context: ModelContext) {
+        let descriptor = FetchDescriptor<NewsItem>(
+            sortBy: [SortDescriptor(\.publishedAt, order: .reverse)]
+        )
+        let allItems = (try? context.fetch(descriptor)) ?? []
+        let recent = allItems.prefix(10)
+
+        struct WidgetArticle: Codable {
+            let title: String
+            let commodity: String
+            let source: String
+            let age: String
+        }
+
+        let articles = recent.map { item -> WidgetArticle in
+            let diff = Date().timeIntervalSince(item.publishedAt)
+            let minutes = Int(diff / 60)
+            let hours = Int(diff / 3600)
+            let days = Int(diff / 86400)
+            let age: String
+            if days >= 1 { age = "\(days)D AGO" }
+            else if hours >= 1 { age = "\(hours)H AGO" }
+            else { age = "\(minutes)M AGO" }
+
+            return WidgetArticle(
+                title: item.title,
+                commodity: item.commodity?.name ?? "News",
+                source: item.source,
+                age: age
+            )
+        }
+
+        if let data = try? JSONEncoder().encode(Array(articles)) {
+            let defaults = UserDefaults(suiteName: "group.com.agripulse.app") ?? UserDefaults.standard
+            defaults.set(data, forKey: "widgetArticles")
+        }
+
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     /// Clean up news using commodity-specific retention periods

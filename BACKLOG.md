@@ -1,6 +1,6 @@
 # AgriPulse — Complete Backlog (Bugs + Enhancements)
 
-> Generated: 2026-03-27 | Current Version: v1.2 | App Store ID: 6760972266
+> Generated: 2026-03-27 | Updated: 2026-03-28 | Current Version: v1.4 | App Store ID: 6760972266
 
 ---
 
@@ -8,8 +8,8 @@
 
 ---
 
-### BUG-01: Raw HTML/URLs showing in news card snippets
-**Priority:** High
+### ~~BUG-01: Raw HTML/URLs showing in news card snippets~~ ✅ FIXED (v1.3)
+**Priority:** High | **Fixed in:** `ef1ada4`
 **Affected areas:** Wheat, Paddy, Chana, Mutual Funds, Saved Articles
 
 **Problem:**
@@ -31,8 +31,8 @@ Google News RSS returns two formats for `<description>`:
 
 ---
 
-### BUG-02: AI Summary displaying raw Response object
-**Priority:** High
+### ~~BUG-02: AI Summary displaying raw Response object~~ ✅ FIXED (v1.3)
+**Priority:** High | **Fixed in:** `0791668`
 **Affected areas:** Sugar/ChiniMandi articles, possibly others
 
 **Problem:**
@@ -56,8 +56,8 @@ AI Summary shows `Response<String>(userPrompt: "Daily Sugar Market Update By Viz
 
 ---
 
-### BUG-03: News retention too short (7-8 days instead of 30)
-**Priority:** High
+### ~~BUG-03: News retention too short (7-8 days instead of 30)~~ ✅ FIXED (v1.3)
+**Priority:** High | **Fixed in:** `ef1ada4`
 **Affected areas:** All commodity tabs
 
 **Problem:**
@@ -83,8 +83,8 @@ The RSS fetch uses `tbs=qdr:h24` (last 24 hours only) in Google News queries. Ov
 
 ---
 
-### BUG-04: iOS app missing ~30-50% articles vs Replit web app
-**Priority:** High
+### ~~BUG-04: iOS app missing ~30-50% articles vs Replit web app~~ ✅ FIXED (v1.3)
+**Priority:** High | **Fixed in:** `ef1ada4`
 **Affected areas:** All commodities, especially Sugar, Ethanol, Chana, Wheat, Currency
 
 **Problem:**
@@ -121,8 +121,8 @@ Also missing: 4 specialized fetchers (PIB direct scrape, DGFT, IMD, Packaging) a
 
 ---
 
-### BUG-05: Empty commodity tabs (Cotton Seed Oil, Psyllium)
-**Priority:** High
+### ~~BUG-05: Empty commodity tabs (Cotton Seed Oil, Psyllium)~~ ✅ FIXED (v1.3)
+**Priority:** High | **Fixed in:** `ef1ada4`
 **Affected areas:** Cotton Seed Oil, Psyllium/Isabgol tabs
 
 **Problem:**
@@ -146,8 +146,8 @@ These commodity tabs show zero articles despite having search queries defined.
 
 ---
 
-### BUG-06: IMD/Advisories missing ICAR and agricultural institute news
-**Priority:** High
+### ~~BUG-06: IMD/Advisories missing ICAR and agricultural institute news~~ ✅ FIXED (v1.3)
+**Priority:** High | **Fixed in:** `ef1ada4`
 **Affected areas:** IMD/ICAR Advisories special commodity
 
 **Problem:**
@@ -168,8 +168,8 @@ Replit has a dedicated `server/imd.ts` fetcher with 12 specialized search terms 
 
 ---
 
-### BUG-07: Maize news not appearing in Latest tab
-**Priority:** Medium
+### ~~BUG-07: Maize news not appearing in Latest tab~~ ✅ FIXED (v1.3)
+**Priority:** Medium | **Fixed in:** `ef1ada4`
 **Affected areas:** Latest Updates tab
 
 **Problem:**
@@ -188,8 +188,8 @@ The Latest tab aggregates articles using a query that may filter by `isGlobal` o
 
 ---
 
-### BUG-08: India/Global misclassification
-**Priority:** Medium
+### ~~BUG-08: India/Global misclassification~~ ✅ FIXED (v1.3)
+**Priority:** Medium | **Fixed in:** `ef1ada4`
 **Affected areas:** Wheat, Currency, and likely others
 
 **Problem:**
@@ -212,8 +212,8 @@ The `isGlobalQuery()` function in `RSSFetcher.swift` determines India/Global bas
 
 ---
 
-### BUG-09: Currency tab missing many articles vs Replit
-**Priority:** Medium
+### ~~BUG-09: Currency tab missing many articles vs Replit~~ ✅ FIXED (v1.3)
+**Priority:** Medium | **Fixed in:** `ef1ada4`
 **Affected areas:** Currency commodity (Others group)
 
 **Problem:**
@@ -237,8 +237,8 @@ Also missing source domains: ndtv.com, moneycontrol.com, financialexpress.com, r
 
 ---
 
-### BUG-10: Poor font contrast on older news cards
-**Priority:** Medium
+### ~~BUG-10: Poor font contrast on older news cards~~ ✅ FIXED (v1.4)
+**Priority:** Medium | **Fixed in:** `bb192c9`
 **Affected areas:** All "normal" age-level cards (articles older than 24 hours)
 
 **Problem:**
@@ -259,8 +259,8 @@ BREAKING (red, < 1hr) and HOT (green, 1-8hr) cards have good text contrast. But 
 
 ---
 
-### BUG-11: Equity Market access buried in side panel
-**Priority:** Medium
+### ~~BUG-11: Equity Market access buried in side panel~~ ✅ FIXED (v1.3)
+**Priority:** Medium | **Fixed in:** `ef1ada4`
 **Affected areas:** Navigation / tab bar
 
 **Problem:**
@@ -281,8 +281,8 @@ Equity Market (Indian Equity, Global Equity, Crypto, Mutual Funds) is only acces
 
 ---
 
-### BUG-12: Duplicate articles with different Google News URLs
-**Priority:** Low
+### ~~BUG-12: Duplicate articles with different Google News URLs~~ ✅ FIXED (v1.3)
+**Priority:** Low | **Fixed in:** `ef1ada4`, `eeb2680`
 **Affected areas:** Wheat tab, possibly others
 
 **Problem:**
@@ -306,8 +306,8 @@ Dedup in `RSSFetcher.swift` or `NewsFilterEngine.swift` compares article `link` 
 
 ---
 
-### ENH-01: Pagination across all commodity tabs (50 per page)
-**Version:** v1.2.1
+### ~~ENH-01: Pagination across all commodity tabs (50 per page)~~ ✅ DONE (v1.3)
+**Version:** v1.2.1 | **Shipped in:** `293e669`
 **Priority:** High
 
 **Current state:** Only Wheat (50/page) and PIB Updates (25/page) have pagination. All other commodities show all articles in a single scrollable list.
@@ -340,8 +340,8 @@ Dedup in `RSSFetcher.swift` or `NewsFilterEngine.swift` compares article `link` 
 
 ---
 
-### ENH-03: Swipe gesture for side panel
-**Version:** v1.2.1
+### ~~ENH-03: Swipe gesture for side panel~~ ✅ DONE (v1.3)
+**Version:** v1.2.1 | **Shipped in:** `293e669`
 **Priority:** Medium
 
 **What to build:**
@@ -371,8 +371,8 @@ Dedup in `RSSFetcher.swift` or `NewsFilterEngine.swift` compares article `link` 
 
 ---
 
-### ENH-05: Pull-to-refresh with toast notification
-**Version:** v1.2.1
+### ~~ENH-05: Pull-to-refresh with toast notification~~ ✅ DONE (v1.3)
+**Version:** v1.2.1 | **Shipped in:** `293e669`
 **Priority:** Low
 
 **What to build:**
@@ -450,8 +450,8 @@ Port Replit's 4 specialized content fetchers:
 
 ---
 
-### ENH-09: Commodity Calendar as dedicated tab or prominent placement
-**Version:** v1.3
+### ~~ENH-09: Commodity Calendar as dedicated tab or prominent placement~~ ✅ DONE (v1.3)
+**Version:** v1.3 | **Shipped in:** CommodityCalendarView.swift + CalendarViewModel
 **Priority:** Medium
 
 **What to build:**
@@ -464,8 +464,8 @@ Port Replit's 4 specialized content fetchers:
 
 ---
 
-### ENH-10: Collapsible search bar on mobile
-**Version:** v1.3
+### ~~ENH-10: Search bar on mobile~~ ✅ DONE (v1.3)
+**Version:** v1.3 | **Shipped in:** `.searchable` on NewsFeedView + SavedArticlesView
 **Priority:** Low
 
 **What to build:**
@@ -602,8 +602,8 @@ New views:
 
 ---
 
-### ENH-18: Native share sheet for articles
-**Version:** v1.4+
+### ~~ENH-18: Native share sheet for articles~~ ✅ DONE (v1.3)
+**Version:** v1.4+ | **Shipped in:** `293e669` — UIActivityViewController in NewsCardView
 **Priority:** Medium
 
 **What to build:**
@@ -661,8 +661,8 @@ New views:
 
 ---
 
-### ENH-22: Rate/review prompt
-**Version:** v1.4+
+### ~~ENH-22: Rate/review prompt~~ ✅ DONE (v1.3)
+**Version:** v1.4+ | **Shipped in:** `293e669` — SKStoreReviewController in AgriPulseApp
 **Priority:** Medium
 
 **What to build:**
@@ -672,19 +672,6 @@ New views:
 
 **Files to modify:**
 - `AgriPulse/AgriPulseApp.swift` — session tracking + review prompt
-
----
-
-### ENH-23: Cross-promote Commodity-Watcher web version
-**Version:** v1.4+
-**Priority:** Low
-
-**What to build:**
-- "Web Version" link in Settings/About section
-- Opens Replit-hosted Commodity-Watcher in Safari
-
-**Files to modify:**
-- `AgriPulse/Views/` — add to More/Settings section
 
 ---
 
@@ -717,18 +704,39 @@ New views:
 
 ---
 
-## SUMMARY
+## SUMMARY (Updated 2026-03-28)
 
-| Category | Count | High | Medium | Low |
-|----------|-------|------|--------|-----|
-| Bugs | 12 | 6 | 5 | 1 |
-| Enhancements | 24 | 7 | 9 | 8 |
-| **Total** | **36** | **13** | **14** | **9** |
+| Category | Total | Done | Remaining |
+|----------|-------|------|-----------|
+| Bugs | 12 | **12** | 0 |
+| Enhancements | 23 | **8** | **15** |
+| **Total** | **35** | **20** | **15** |
 
-### Suggested execution order (bugs first):
-1. BUG-01 (HTML stripping) + BUG-04 (missing queries/sources) — biggest user-visible impact
-2. BUG-03 (retention) + BUG-05 (empty tabs) + BUG-06 (IMD/ICAR) — content coverage
-3. BUG-02 (AI summary) + BUG-07 (Latest tab) + BUG-08 (India/Global) — data quality
-4. BUG-10 (contrast) + BUG-09 (Currency) + BUG-12 (dedup) — polish
-5. ENH-01 (pagination) + BUG-11 (Equity access) — UX
-6. Then enhancements by version target
+### Completed (v1.3-v1.4)
+- All 12 bugs fixed
+- ENH-01 Pagination, ENH-03 Swipe gesture, ENH-05 Pull-to-refresh
+- ENH-09 Calendar, ENH-10 Search, ENH-18 Share sheet, ENH-22 Rate/review
+
+### Remaining enhancements by priority
+
+**High priority:**
+- ENH-06: Commodity Preferences (toggle/reorder/tab picker)
+- ENH-07: Dedicated fetchers (PIB/DGFT/IMD/Packaging)
+- ENH-13: Push notifications for breaking news
+- ENH-14: iOS home screen price widgets
+- ENH-15: Mandi price data (AGMARKNET API)
+- ENH-19: WhatsApp/Telegram formatted sharing
+
+**Medium priority:**
+- ENH-02: Side panel styling (glassmorphism)
+- ENH-08: PDF export with date range filtering
+- ENH-11: Custom search queries per commodity
+- ENH-12: Custom RSS sources
+- ENH-16: Watchlist (top 5 feed)
+- ENH-17: Price trend charts
+- ENH-21: App Store Optimization (Hindi)
+
+**Low priority:**
+- ENH-04: Remember last sub-tab per group
+- ENH-20: iPad split view
+- ENH-24: Fully custom commodities

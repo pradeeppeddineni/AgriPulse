@@ -48,6 +48,7 @@ struct AgriPulseApp: App {
                 .task {
                     await initialRefreshIfNeeded(context: modelContainer.mainContext)
                     requestReviewIfNeeded()
+                    NotificationService.shared.requestPermission()
                 }
         }
     }

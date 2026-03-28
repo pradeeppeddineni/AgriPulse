@@ -9,12 +9,12 @@ struct SidePanelView: View {
     let onShowCalendar: () -> Void
     var onSelectEquity: (() -> Void)?
 
-    private let panelWidth: CGFloat = 280
+    private let panelWidth: CGFloat = 290
 
     var body: some View {
         ZStack(alignment: .leading) {
-            // Dark overlay
-            Color.black.opacity(isPresented ? 0.5 : 0)
+            // Dark overlay with blur
+            Color.black.opacity(isPresented ? 0.55 : 0)
                 .ignoresSafeArea()
                 .onTapGesture { dismiss() }
 
@@ -22,25 +22,52 @@ struct SidePanelView: View {
             HStack(spacing: 0) {
                 panelContent
                     .frame(width: panelWidth)
-                    .background(
-                        AgriPulseTheme.card
-                            .overlay(
-                                LinearGradient(
-                                    colors: [AgriPulseTheme.primary.opacity(0.03), Color.clear],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
+                    .background {
+                        ZStack {
+                            // Base: ultra-thin material for glassmorphism
+                            Rectangle()
+                                .fill(.ultraThinMaterial)
+                                .environment(\.colorScheme, .dark)
+
+                            // Overlay: deep navy tint for brand consistency
+                            AgriPulseTheme.sidebar.opacity(0.82)
+
+                            // Gradient accent along the top
+                            LinearGradient(
+                                colors: [
+                                    AgriPulseTheme.primary.opacity(0.12),
+                                    AgriPulseTheme.primary.opacity(0.03),
+                                    Color.clear
+                                ],
+                                startPoint: .top,
+                                endPoint: .center
                             )
-                    )
+
+                            // Subtle edge highlight
+                            HStack {
+                                Spacer()
+                                Rectangle()
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [AgriPulseTheme.primary.opacity(0.15), Color.clear],
+                                            startPoint: .top,
+                                            endPoint: .bottom
+                                        )
+                                    )
+                                    .frame(width: 1)
+                            }
+                        }
+                    }
                     .clipShape(
                         UnevenRoundedRectangle(
                             topLeadingRadius: 0,
                             bottomLeadingRadius: 0,
-                            bottomTrailingRadius: 20,
-                            topTrailingRadius: 20
+                            bottomTrailingRadius: 24,
+                            topTrailingRadius: 24
                         )
                     )
-                    .shadow(color: .black.opacity(0.3), radius: 20, x: 5)
+                    .shadow(color: AgriPulseTheme.primary.opacity(0.08), radius: 30, x: 8)
+                    .shadow(color: .black.opacity(0.4), radius: 20, x: 5)
                     .offset(x: isPresented ? 0 : -panelWidth - 20)
 
                 Spacer()
@@ -58,36 +85,71 @@ struct SidePanelView: View {
 
     private var panelContent: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Brand header
-            HStack(spacing: 10) {
-                Image(systemName: "chart.bar.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(AgriPulseTheme.primary)
-                    .padding(6)
-                    .background(AgriPulseTheme.primary.opacity(0.15))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("AgriPulse")
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [.white, AgriPulseTheme.primary, .blue.opacity(0.7)],
-                                startPoint: .leading,
-                                endPoint: .trailing
+            // Brand header with glassmorphism card
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 12) {
+                    // App icon
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        AgriPulseTheme.primary,
+                                        AgriPulseTheme.primary.opacity(0.7)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
                             )
-                        )
-                    Text("MARKET INTELLIGENCE")
-                        .font(.system(size: 8, weight: .semibold))
-                        .tracking(2)
-                        .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.4))
+                            .frame(width: 40, height: 40)
+
+                        Image(systemName: "chart.bar.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("AgriPulse")
+                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.white, AgriPulseTheme.primary.opacity(0.9)],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                        Text("MARKET INTELLIGENCE")
+                            .font(.system(size: 8.5, weight: .bold))
+                            .tracking(2.5)
+                            .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
+                    }
+                }
+
+                // Version pill
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(AgriPulseTheme.freshEmerald)
+                        .frame(width: 6, height: 6)
+                    Text("v1.5 · Live")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.6))
                 }
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
             .padding(.top, 60)
-            .padding(.bottom, 16)
+            .padding(.bottom, 18)
 
-            Divider().opacity(0.2).padding(.horizontal, 12)
+            // Divider with gradient
+            Rectangle()
+                .fill(
+                    LinearGradient(
+                        colors: [AgriPulseTheme.primary.opacity(0.3), Color.clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .frame(height: 1)
+                .padding(.horizontal, 16)
 
             // Scrollable content
             ScrollView(.vertical, showsIndicators: false) {
@@ -157,43 +219,69 @@ struct SidePanelView: View {
     }
 
     private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(.system(size: 9.5, weight: .semibold))
-            .tracking(1.8)
-            .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.4))
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
-            .padding(.bottom, 6)
+        HStack(spacing: 8) {
+            Text(title)
+                .font(.system(size: 9.5, weight: .bold))
+                .tracking(2)
+                .foregroundStyle(AgriPulseTheme.primary.opacity(0.5))
+
+            Rectangle()
+                .fill(AgriPulseTheme.primary.opacity(0.1))
+                .frame(height: 1)
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 18)
+        .padding(.bottom, 6)
     }
 
     private func menuItem(icon: String, label: String, badge: Int = 0, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            HStack(spacing: 10) {
+            HStack(spacing: 12) {
                 Image(systemName: icon)
-                    .font(.system(size: 13))
-                    .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.6))
-                    .frame(width: 18)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(AgriPulseTheme.primary.opacity(0.7))
+                    .frame(width: 20)
 
                 Text(label)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(AgriPulseTheme.foreground)
+                    .font(.system(size: 13.5, weight: .medium))
+                    .foregroundStyle(AgriPulseTheme.foreground.opacity(0.9))
 
                 Spacer()
 
                 if badge > 0 {
                     Text("\(badge)")
                         .font(.system(size: 9, weight: .bold))
-                        .foregroundStyle(AgriPulseTheme.primary)
+                        .foregroundStyle(.white)
                         .padding(.horizontal, 6)
-                        .frame(minWidth: 18, minHeight: 18)
-                        .background(AgriPulseTheme.primary.opacity(0.15))
-                        .clipShape(Capsule())
+                        .frame(minWidth: 20, minHeight: 20)
+                        .background(
+                            Capsule()
+                                .fill(AgriPulseTheme.primary.opacity(0.6))
+                        )
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 9)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.white.opacity(0.001))
+            )
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(MenuItemButtonStyle())
+    }
+}
+
+// Custom button style with hover/press effect
+private struct MenuItemButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(configuration.isPressed ? AgriPulseTheme.primary.opacity(0.08) : Color.clear)
+                    .padding(.horizontal, 8)
+            )
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
     }
 }

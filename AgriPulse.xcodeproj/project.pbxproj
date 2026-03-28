@@ -39,6 +39,7 @@
 		E10000010000000000000031 /* CommodityGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000020000000000000031; };
 		E10000010000000000000032 /* SidePanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000020000000000000032; };
 		E10000010000000000000033 /* SummarizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000020000000000000033; };
+		E10000010000000000000034 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000020000000000000034; };
 		E10000010000000000000050 /* FeedKit in Frameworks */ = {isa = PBXBuildFile; productRef = E10000030000000000000050; };
 		E10000010000000000000051 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = E10000030000000000000051; };
 		E20000010000000000000001 /* HTMLStrippingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000020000000000000001; };
@@ -90,6 +91,7 @@
 		E10000020000000000000031 /* CommodityGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommodityGroupView.swift; sourceTree = "<group>"; };
 		E10000020000000000000032 /* SidePanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidePanelView.swift; sourceTree = "<group>"; };
 		E10000020000000000000033 /* SummarizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SummarizationService.swift; sourceTree = "<group>"; };
+		E10000020000000000000034 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		E10000020000000000000099 /* AgriPulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AgriPulse.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E20000020000000000000001 /* HTMLStrippingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLStrippingTests.swift; sourceTree = "<group>"; };
 		E20000020000000000000002 /* NewsFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsFilterTests.swift; sourceTree = "<group>"; };
@@ -161,6 +163,7 @@
 				E10000020000000000000014 /* PIBService.swift */,
 				E10000020000000000000015 /* BackgroundRefreshManager.swift */,
 				E10000020000000000000033 /* SummarizationService.swift */,
+				E10000020000000000000034 /* NotificationService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -411,6 +414,7 @@
 				E10000010000000000000031 /* CommodityGroupView.swift in Sources */,
 				E10000010000000000000032 /* SidePanelView.swift in Sources */,
 				E10000010000000000000033 /* SummarizationService.swift in Sources */,
+				E10000010000000000000034 /* NotificationService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

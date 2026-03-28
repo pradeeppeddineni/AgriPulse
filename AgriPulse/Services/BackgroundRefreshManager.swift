@@ -36,7 +36,6 @@ final class BackgroundRefreshManager {
         // Schedule next refresh
         scheduleRefresh()
 
-        // Create a temporary model container for background work
         do {
             let schema = Schema([Commodity.self, NewsItem.self])
             let config = ModelConfiguration(isStoredInMemoryOnly: false)
@@ -47,9 +46,33 @@ final class BackgroundRefreshManager {
                 // Clean up if needed
             }
 
+            // Capture articles before refresh to detect new ones
+            let beforeDescriptor = FetchDescriptor<NewsItem>()
+            let beforeCount = (try? context.fetchCount(beforeDescriptor)) ?? 0
+
             _ = await NewsService.shared.refreshAll(context: context)
 
-            // Cleanup old articles (30-day default, 365-day for Wheat)
+            // Only notify if we actually added new articles
+            let afterCount = (try? context.fetchCount(beforeDescriptor)) ?? 0
+            if afterCount > beforeCount {
+                // Find breaking articles (< 30 min old)
+                let thirtyMinAgo = Date().addingTimeInterval(-30 * 60)
+                let allDescriptor = FetchDescriptor<NewsItem>(
+                    sortBy: [SortDescriptor(\.publishedAt, order: .reverse)]
+                )
+                let allItems = (try? context.fetch(allDescriptor)) ?? []
+                let breakingItems = allItems.filter { $0.publishedAt > thirtyMinAgo }
+
+                let notifications = breakingItems.map { item in
+                    (title: item.title,
+                     source: item.source,
+                     commodity: item.commodity?.name ?? "News",
+                     publishedAt: item.publishedAt)
+                }
+                NotificationService.shared.notifyBreakingArticles(notifications)
+            }
+
+            // Cleanup old articles
             NewsService.shared.cleanupOldNews(context: context)
             NewsService.shared.unsaveOldArticles(days: 365, context: context)
 

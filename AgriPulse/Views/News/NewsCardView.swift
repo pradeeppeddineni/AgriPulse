@@ -9,6 +9,7 @@ struct NewsCardView: View {
     @State private var appeared = false
     @State private var isSummarizing = false
     @State private var summaryExpanded = false
+    @State private var showShareOptions = false
 
     /// True if the snippet is just the title repeated (common with Google News RSS)
     private var isSnippetDuplicateOfTitle: Bool {
@@ -26,12 +27,21 @@ struct NewsCardView: View {
             || normalizedSnippet.hasPrefix(normalizedTitle)
     }
 
+    private func formatShareText(url: String) -> String {
+        let snippetLine = item.snippet.isEmpty || isSnippetDuplicateOfTitle ? "" : "\n\(item.snippet)\n"
+        let commodityLine = commodityName.map { " · \($0)" } ?? ""
+        return """
+        *\(item.title)*
+        \(snippetLine)
+        \(item.source)\(commodityLine) · via AgriPulse
+        \(url)
+        """
+    }
+
     private func shareArticle() {
-        // Resolve Google News redirect URL to get the actual article URL
         Task {
             let articleURL = await resolveRedirect(item.link)
-            let snippetLine = item.snippet.isEmpty || isSnippetDuplicateOfTitle ? "" : "\(item.snippet)\n\n"
-            let shareText = "*\(item.title)*\n\n\(snippetLine)\(item.source) · via AgriPulse\n\(articleURL)"
+            let shareText = formatShareText(url: articleURL)
 
             await MainActor.run {
                 let activityVC = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
@@ -48,10 +58,47 @@ struct NewsCardView: View {
         }
     }
 
+    private func shareToWhatsApp() {
+        Task {
+            let articleURL = await resolveRedirect(item.link)
+            let shareText = formatShareText(url: articleURL)
+            guard let encoded = shareText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                  let url = URL(string: "whatsapp://send?text=\(encoded)") else { return }
+
+            await MainActor.run {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url)
+                } else {
+                    // Fallback to web WhatsApp
+                    if let webURL = URL(string: "https://api.whatsapp.com/send?text=\(encoded)") {
+                        UIApplication.shared.open(webURL)
+                    }
+                }
+            }
+        }
+    }
+
+    private func shareToTelegram() {
+        Task {
+            let articleURL = await resolveRedirect(item.link)
+            let shareText = formatShareText(url: articleURL)
+            guard let encoded = shareText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                  let url = URL(string: "tg://msg?text=\(encoded)") else { return }
+
+            await MainActor.run {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url)
+                } else {
+                    // Fallback to web Telegram
+                    if let webURL = URL(string: "https://t.me/share/url?url=\(articleURL)&text=\(encoded)") {
+                        UIApplication.shared.open(webURL)
+                    }
+                }
+            }
+        }
+    }
+
     /// Follow redirects to resolve Google News URLs to actual article URLs.
-    /// Google News uses a server-side page that redirects via JS/meta-refresh,
-    /// so we do a full GET and check both the final response URL and any
-    /// data-redirect attribute or meta refresh tag in the HTML body.
     private func resolveRedirect(_ urlString: String) async -> String {
         guard let url = URL(string: urlString),
               urlString.contains("news.google.com") else { return urlString }
@@ -63,21 +110,17 @@ struct NewsCardView: View {
 
             let (data, response) = try await URLSession.shared.data(for: request)
 
-            // 1. Check if the response URL itself resolved away from Google News
             if let finalURL = (response as? HTTPURLResponse)?.url ?? response.url,
                !finalURL.absoluteString.contains("news.google.com") {
                 return finalURL.absoluteString
             }
 
-            // 2. Parse HTML body for redirect clues
             if let html = String(data: data, encoding: .utf8) {
-                // Look for data-n-au="https://..." attribute (Google News article URL)
                 if let range = html.range(of: #"data-n-au="([^"]+)""#, options: .regularExpression),
                    let urlRange = html.range(of: #"(?<=data-n-au=")[^"]+"#, options: .regularExpression) {
-                    let _ = range // suppress unused warning
+                    let _ = range
                     return String(html[urlRange])
                 }
-                // Look for <a href="..."> with an article URL
                 if let urlRange = html.range(of: #"<a[^>]+href="(https?://(?!news\.google\.com)[^"]+)"#, options: .regularExpression) {
                     let match = String(html[urlRange])
                     if let hrefRange = match.range(of: #"https?://[^"]+"#, options: .regularExpression) {
@@ -258,15 +301,32 @@ struct NewsCardView: View {
 
                         Spacer()
 
-                        // Share button
+                        // Share button with options
                         Button {
-                            shareArticle()
+                            showShareOptions = true
                         } label: {
                             Image(systemName: "square.and.arrow.up")
                                 .font(.system(size: 11))
                                 .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.8))
                         }
                         .buttonStyle(.plain)
+                        .confirmationDialog("Share Article", isPresented: $showShareOptions) {
+                            Button {
+                                shareToWhatsApp()
+                            } label: {
+                                Label("WhatsApp", systemImage: "message.fill")
+                            }
+                            Button {
+                                shareToTelegram()
+                            } label: {
+                                Label("Telegram", systemImage: "paperplane.fill")
+                            }
+                            Button {
+                                shareArticle()
+                            } label: {
+                                Label("More...", systemImage: "square.and.arrow.up")
+                            }
+                        }
 
                         Link(destination: URL(string: item.link) ?? URL(string: "https://google.com")!) {
                             HStack(spacing: 3) {
