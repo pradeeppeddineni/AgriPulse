@@ -10,6 +10,22 @@ struct NewsCardView: View {
     @State private var isSummarizing = false
     @State private var summaryExpanded = false
 
+    /// True if the snippet is just the title repeated (common with Google News RSS)
+    private var isSnippetDuplicateOfTitle: Bool {
+        let normalizedSnippet = item.snippet.lowercased()
+            .replacingOccurrences(of: item.source.lowercased(), with: "")
+            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedTitle = item.title.lowercased()
+            .replacingOccurrences(of: " - \(item.source.lowercased())", with: "")
+            .replacingOccurrences(of: " | \(item.source.lowercased())", with: "")
+            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return normalizedSnippet == normalizedTitle
+            || normalizedTitle.hasPrefix(normalizedSnippet)
+            || normalizedSnippet.hasPrefix(normalizedTitle)
+    }
+
     var body: some View {
         let (level, ageLabel) = AgeLevel.from(publishedAt: item.publishedAt)
 
@@ -84,8 +100,8 @@ struct NewsCardView: View {
                         .lineLimit(3)
                         .multilineTextAlignment(.leading)
 
-                    // Snippet
-                    if !item.snippet.isEmpty {
+                    // Snippet (hide if it's just the title repeated)
+                    if !item.snippet.isEmpty && !isSnippetDuplicateOfTitle {
                         Text(item.snippet)
                             .font(.system(size: 12))
                             .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(level == .old ? 0.4 : 0.75))
