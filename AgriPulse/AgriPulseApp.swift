@@ -54,14 +54,10 @@ struct AgriPulseApp: App {
     private func initialRefreshIfNeeded(context: ModelContext) async {
         let descriptor = FetchDescriptor<NewsItem>()
         let count = (try? context.fetchCount(descriptor)) ?? 0
+        guard count == 0 else { return }
 
-        if count == 0 {
-            // No news yet — fetch everything on first launch
-            _ = await NewsService.shared.refreshAll(context: context)
-        }
-
-        // Progressively enrich snippets and AI summaries for existing articles
-        SnippetEnrichmentService.shared.enrichInBackground(context: context)
+        // No news yet — fetch everything on first launch
+        _ = await NewsService.shared.refreshAll(context: context)
     }
 
     /// Add any new commodities and update search queries for existing ones.
