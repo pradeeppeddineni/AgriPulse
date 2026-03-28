@@ -26,6 +26,22 @@ struct NewsCardView: View {
             || normalizedSnippet.hasPrefix(normalizedTitle)
     }
 
+    private func shareArticle() {
+        let snippetLine = item.snippet.isEmpty || isSnippetDuplicateOfTitle ? "" : "\(item.snippet)\n\n"
+        let shareText = "*\(item.title)*\n\n\(snippetLine)\(item.source) · via AgriPulse\n\(item.link)"
+        let activityVC = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
+
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootVC = windowScene.windows.first?.rootViewController {
+            var presenter = rootVC
+            while let presented = presenter.presentedViewController {
+                presenter = presented
+            }
+            activityVC.popoverPresentationController?.sourceView = presenter.view
+            presenter.present(activityVC, animated: true)
+        }
+    }
+
     var body: some View {
         let (level, ageLabel) = AgeLevel.from(publishedAt: item.publishedAt)
 
@@ -194,17 +210,14 @@ struct NewsCardView: View {
                         Spacer()
 
                         // Share button
-                        if let url = URL(string: item.link) {
-                            ShareLink(
-                                item: "*\(item.title)*\n\(item.snippet.isEmpty ? "" : "\(item.snippet)\n")\n\(item.source) · via AgriPulse\n\(item.link)",
-                                preview: SharePreview(item.title, image: Image(systemName: "newspaper"))
-                            ) {
-                                Image(systemName: "square.and.arrow.up")
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
-                            }
-                            .buttonStyle(.plain)
+                        Button {
+                            shareArticle()
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.system(size: 11))
+                                .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
                         }
+                        .buttonStyle(.plain)
 
                         HStack(spacing: 3) {
                             Text("Read")

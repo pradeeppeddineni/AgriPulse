@@ -22,13 +22,9 @@ struct PDFExportView: View {
                         .foregroundStyle(AgriPulseTheme.mutedForeground)
                 }
 
-                ShareLink(
-                    item: pdfData,
-                    preview: SharePreview(
-                        "AgriPulse Saved Articles",
-                        image: Image(systemName: "doc.richtext")
-                    )
-                ) {
+                Button {
+                    sharePDF()
+                } label: {
                     HStack(spacing: 8) {
                         Image(systemName: "square.and.arrow.up")
                         Text("Share PDF")
@@ -53,5 +49,31 @@ struct PDFExportView: View {
             }
         }
         .preferredColorScheme(.dark)
+    }
+
+    private func sharePDF() {
+        // Write to temp file so it shares as a proper PDF
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let fileName = "AgriPulse_Articles_\(dateFormatter.string(from: Date())).pdf"
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
+
+        do {
+            try pdfData.write(to: tempURL)
+        } catch {
+            return
+        }
+
+        let activityVC = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
+
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootVC = windowScene.windows.first?.rootViewController {
+            var presenter = rootVC
+            while let presented = presenter.presentedViewController {
+                presenter = presented
+            }
+            activityVC.popoverPresentationController?.sourceView = presenter.view
+            presenter.present(activityVC, animated: true)
+        }
     }
 }
