@@ -89,6 +89,7 @@ struct EquityMarketView: View {
                     _ = await viewModel.refresh(commodity: commodity, context: modelContext)
                 }
             }
+            .agriPulseRefresh(isRefreshing: viewModel.isRefreshing)
         }
         .background(AgriPulseTheme.background)
         .onAppear {
@@ -211,18 +212,18 @@ private struct EquityTabContent: View {
                         .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
                     Spacer()
                 }
-                .padding(.horizontal, 12)
+                .padding(.horizontal, 16)
                 .padding(.top, 4)
                 .padding(.bottom, 8)
 
                 ForEach(Array(paginatedNews.enumerated()), id: \.element.id) { index, item in
-                    NewsCardView(item: item, commodityName: commodity.name, onToggleSave: {
+                    NewsCardView(item: item, commodityName: commodity.name, index: index, isHero: index == 0 && currentPage == 1, onToggleSave: {
                         item.isSaved.toggle()
                         try? modelContext.save()
                     }, onSummarize: {
                         Task { await SummarizationService.shared.summarize(item, context: modelContext) }
                     })
-                        .padding(.horizontal, 12)
+                        .padding(.horizontal, 16)
                         .padding(.vertical, 4)
                         .transition(.opacity.combined(with: .move(edge: .bottom)))
                         .animation(.easeOut(duration: 0.2).delay(Double(min(index, 10)) * 0.03), value: paginatedNews.count)

@@ -10,7 +10,7 @@ struct SavedArticlesView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 12) {
+            LazyVStack(spacing: 16) {
                 if viewModel.filteredItems.isEmpty {
                     emptyState
                 } else {

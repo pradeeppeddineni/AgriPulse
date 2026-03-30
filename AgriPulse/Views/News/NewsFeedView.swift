@@ -36,7 +36,7 @@ struct NewsFeedView: View {
             }
 
             ScrollView {
-                LazyVStack(spacing: 12) {
+                LazyVStack(spacing: 16) {
                     if !isLatestTab {
                         standardStatusBar
                     } else {
@@ -86,6 +86,7 @@ struct NewsFeedView: View {
                                 item: item,
                                 commodityName: commodity == nil ? item.commodity?.name : nil,
                                 index: index,
+                                isHero: index == 0 && viewModel.currentPage == 1,
                                 onToggleSave: {
                                     viewModel.toggleSave(item, context: modelContext)
                                 },
@@ -106,6 +107,7 @@ struct NewsFeedView: View {
             .refreshable {
                 await viewModel.refresh(context: modelContext)
             }
+            .agriPulseRefresh(isRefreshing: viewModel.isRefreshing)
         }
         .background(AgriPulseTheme.background)
         .navigationTitle(isLatestTab ? "" : (commodity?.name ?? ""))
