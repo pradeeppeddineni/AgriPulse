@@ -8,6 +8,7 @@ final class NewsFeedViewModel {
     var newsItems: [NewsItem] = []
     var isRefreshing = false
     var searchText = ""
+    var categoryFilter = ""
     var currentPage = 1
 
     var lastSyncedText: String? {
@@ -52,14 +53,37 @@ final class NewsFeedViewModel {
         return "\(total) updates"
     }
 
+    // Category → commodity name mapping for filtering
+    private static let categoryMap: [String: Set<String>] = [
+        "grains": ["Wheat", "Maize", "Paddy", "Chana", "Ethanol / DDGS"],
+        "oils": ["Palm Oil", "Rice bran oil", "Soyabean / Oil", "Sunflower oil", "Cotton seed oil"],
+        "fresh": ["Potato", "Cabbage / Carrot", "Ring beans", "Onion", "Potato (Mandi)"],
+        "spices": ["Chilli powder", "Turmeric", "Black pepper", "Cardamom"],
+        "markets": ["Crude", "Precious Metals", "Currency"],
+    ]
+
     var filteredItems: [NewsItem] {
-        if searchText.isEmpty { return newsItems }
-        let lower = searchText.lowercased()
-        return newsItems.filter {
-            $0.title.lowercased().contains(lower)
-            || $0.snippet.lowercased().contains(lower)
-            || $0.source.lowercased().contains(lower)
+        var items = newsItems
+
+        // Category filter
+        if !categoryFilter.isEmpty, let allowed = Self.categoryMap[categoryFilter] {
+            items = items.filter { item in
+                guard let name = item.commodity?.name else { return false }
+                return allowed.contains(name)
+            }
         }
+
+        // Search filter
+        if !searchText.isEmpty {
+            let lower = searchText.lowercased()
+            items = items.filter {
+                $0.title.lowercased().contains(lower)
+                || $0.snippet.lowercased().contains(lower)
+                || $0.source.lowercased().contains(lower)
+            }
+        }
+
+        return items
     }
 
     private static let excludedFromLatest: Set<String> = [

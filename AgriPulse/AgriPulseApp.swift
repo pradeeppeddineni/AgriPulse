@@ -41,19 +41,44 @@ struct AgriPulseApp: App {
         }
     }
 
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @State private var showSplash = true
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .modelContainer(modelContainer)
-                .task {
-                    NotificationService.shared.setup()
-                    await initialRefreshIfNeeded(context: modelContainer.mainContext)
-                    requestReviewIfNeeded()
-                    // Start with provisional (quiet) notifications — no prompt shown
-                    NotificationService.shared.requestProvisionalPermission()
-                    // After 3+ sessions, upgrade to full notifications
-                    NotificationService.shared.upgradePermissionIfNeeded()
+            ZStack {
+                ContentView()
+                    .modelContainer(modelContainer)
+                    .task {
+                        NotificationService.shared.setup()
+                        await initialRefreshIfNeeded(context: modelContainer.mainContext)
+                        requestReviewIfNeeded()
+                        NotificationService.shared.requestProvisionalPermission()
+                        NotificationService.shared.upgradePermissionIfNeeded()
+                    }
+                    .opacity(hasCompletedOnboarding && !showSplash ? 1 : 0)
+
+                if !hasCompletedOnboarding {
+                    WelcomeView {
+                        withAnimation(.easeInOut(duration: 0.4)) {
+                            hasCompletedOnboarding = true
+                            showSplash = false
+                        }
+                    }
+                    .transition(.opacity)
+                } else if showSplash {
+                    SplashView()
+                        .transition(.opacity)
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                                withAnimation(.easeOut(duration: 0.4)) {
+                                    showSplash = false
+                                }
+                            }
+                        }
                 }
+            }
+            .preferredColorScheme(.dark)
         }
     }
 
