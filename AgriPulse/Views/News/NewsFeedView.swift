@@ -20,10 +20,10 @@ struct NewsFeedView: View {
     // Category pills for Latest tab
     private let categories: [(label: String, icon: String, filter: String)] = [
         ("All", "newspaper", ""),
-        ("Grains", "leaf", "grains"),
         ("Oils", "drop", "oils"),
         ("Fresh", "carrot", "fresh"),
         ("Spices", "flame", "spices"),
+        ("Dry Fruits", "leaf.circle", "dryfruits"),
         ("Markets", "chart.bar", "markets"),
     ]
 
@@ -162,16 +162,26 @@ struct NewsFeedView: View {
                         }
                     } label: {
                         Image(systemName: showSearchBar ? "xmark" : "magnifyingglass")
-                            .font(.system(size: 14, weight: .semibold))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundStyle(AgriPulseTheme.primary)
-                            .frame(width: 36, height: 36)
+                            .frame(width: 42, height: 42)
                             .background(AgriPulseTheme.card)
                             .clipShape(Circle())
                     }
 
-                    RefreshButton(isRefreshing: viewModel.isRefreshing) {
+                    Button {
                         Task { await viewModel.refresh(context: modelContext) }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(AgriPulseTheme.primary)
+                            .frame(width: 42, height: 42)
+                            .background(AgriPulseTheme.card)
+                            .clipShape(Circle())
+                            .rotationEffect(.degrees(viewModel.isRefreshing ? 360 : 0))
+                            .animation(viewModel.isRefreshing ? .linear(duration: 1).repeatForever(autoreverses: false) : .default, value: viewModel.isRefreshing)
                     }
+                    .disabled(viewModel.isRefreshing)
                 }
             }
             .padding(.horizontal, 16)

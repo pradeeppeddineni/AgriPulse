@@ -59,6 +59,7 @@ final class NewsFeedViewModel {
         "oils": ["Palm Oil", "Rice bran oil", "Soyabean / Oil", "Sunflower oil", "Cotton seed oil"],
         "fresh": ["Potato", "Cabbage / Carrot", "Ring beans", "Onion", "Potato (Mandi)"],
         "spices": ["Chilli powder", "Turmeric", "Black pepper", "Cardamom"],
+        "dryfruits": ["Cashew", "Almond", "Raisins", "Groundnut", "Oats", "Psyllium / Isabgol"],
         "markets": ["Crude", "Precious Metals", "Currency"],
     ]
 
