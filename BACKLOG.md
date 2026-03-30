@@ -324,8 +324,8 @@ Dedup in `RSSFetcher.swift` or `NewsFilterEngine.swift` compares article `link` 
 
 ---
 
-### ENH-02: Side panel styling (match Replit design)
-**Version:** v1.2.1
+### ~~ENH-02: Side panel glassmorphism styling~~ ✅ DONE (v1.5)
+**Version:** v1.2.1 | **Shipped in:** `380a068`, `50958af`
 **Priority:** Medium
 
 **What to build:**
@@ -355,8 +355,8 @@ Dedup in `RSSFetcher.swift` or `NewsFilterEngine.swift` compares article `link` 
 
 ---
 
-### ENH-04: Remember last selected sub-tab per group
-**Version:** v1.2.1
+### ~~ENH-04: Remember last selected sub-tab per group~~ ✅ DONE (v1.3)
+**Version:** v1.2.1 | **Shipped in:** `293e669` — @AppStorage in CommodityGroupView
 **Priority:** Low
 
 **Current state:** When navigating away from a group (e.g., Grains > Paddy) and coming back, it resets to the first sub-tab (Wheat).
@@ -522,8 +522,8 @@ New views:
 
 ---
 
-### ENH-13: Push notifications for breaking news
-**Version:** v1.4+
+### ~~ENH-13: Push notifications for breaking news~~ ✅ DONE (v1.5)
+**Version:** v1.4+ | **Shipped in:** `380a068`, `50958af`
 **Priority:** High
 
 **What to build:**
@@ -539,8 +539,8 @@ New views:
 
 ---
 
-### ENH-14: iOS home screen price widgets
-**Version:** v1.4+
+### ~~ENH-14: iOS home screen widgets~~ ✅ DONE (v1.5) — needs Xcode target setup
+**Version:** v1.4+ | **Shipped in:** `380a068`, `50958af` — source files created, needs widget target in Xcode + App Group entitlement
 **Priority:** High
 
 **What to build:**
@@ -617,8 +617,8 @@ New views:
 
 ---
 
-### ENH-19: WhatsApp/Telegram formatted sharing
-**Version:** v1.4+
+### ~~ENH-19: WhatsApp/Telegram formatted sharing~~ ✅ DONE (v1.5)
+**Version:** v1.4+ | **Shipped in:** `380a068`, `50958af`
 **Priority:** High
 
 **What to build:**
@@ -646,8 +646,8 @@ New views:
 
 ---
 
-### ENH-21: App Store Optimization
-**Version:** v1.4+
+### ~~ENH-21: App Store Optimization~~ ✅ DONE (v1.5)
+**Version:** v1.4+ | **Shipped in:** `50958af` — AppStoreMetadata.md with EN + Hindi, keyword strategy
 **Priority:** Medium
 
 **What to build:**
@@ -704,39 +704,37 @@ New views:
 
 ---
 
-## SUMMARY (Updated 2026-03-28)
+## SUMMARY (Updated 2026-03-28, post v1.5)
 
 | Category | Total | Done | Remaining |
 |----------|-------|------|-----------|
 | Bugs | 12 | **12** | 0 |
-| Enhancements | 23 | **8** | **15** |
-| **Total** | **35** | **20** | **15** |
+| Enhancements | 22 | **14** | **8** |
+| **Total** | **34** | **26** | **8** |
 
-### Completed (v1.3-v1.4)
-- All 12 bugs fixed
-- ENH-01 Pagination, ENH-03 Swipe gesture, ENH-05 Pull-to-refresh
-- ENH-09 Calendar, ENH-10 Search, ENH-18 Share sheet, ENH-22 Rate/review
+### Completed (v1.3-v1.5)
+- All 12 bugs fixed (v1.3)
+- v1.3: ENH-01 Pagination, ENH-03 Swipe gesture, ENH-04 Remember sub-tab, ENH-05 Pull-to-refresh, ENH-09 Calendar, ENH-10 Search, ENH-18 Share sheet, ENH-22 Rate/review
+- v1.4: Text contrast fix, new app icon
+- v1.5: ENH-02 Glassmorphism side panel, ENH-13 Push notifications, ENH-14 Home screen widget (source), ENH-19 WhatsApp/Telegram sharing, ENH-21 ASO (Hindi + keywords)
 
 ### Remaining enhancements by priority
 
 **High priority:**
 - ENH-06: Commodity Preferences (toggle/reorder/tab picker)
 - ENH-07: Dedicated fetchers (PIB/DGFT/IMD/Packaging)
-- ENH-13: Push notifications for breaking news
-- ENH-14: iOS home screen price widgets
 - ENH-15: Mandi price data (AGMARKNET API)
-- ENH-19: WhatsApp/Telegram formatted sharing
 
 **Medium priority:**
-- ENH-02: Side panel styling (glassmorphism)
 - ENH-08: PDF export with date range filtering
 - ENH-11: Custom search queries per commodity
 - ENH-12: Custom RSS sources
 - ENH-16: Watchlist (top 5 feed)
 - ENH-17: Price trend charts
-- ENH-21: App Store Optimization (Hindi)
 
 **Low priority:**
-- ENH-04: Remember last sub-tab per group
 - ENH-20: iPad split view
 - ENH-24: Fully custom commodities
+
+### Pending setup (code done, needs Xcode config)
+- Widget extension target + App Group entitlement (`group.com.agripulse.app`)

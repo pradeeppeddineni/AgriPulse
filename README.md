@@ -13,8 +13,17 @@ A commodity intelligence app for Indian agricultural markets. Track news, prices
 **News Feed**
 Aggregates news from 50+ sources for each commodity using precision search queries. Sources include Economic Times, The Hindu, Krishi Jagran, AgriWatch, iGrain, Reuters, Bloomberg, LiveMint, PIB (Press Information Bureau), and more. Multi-layer relevance filtering removes noise — no recipes, no horoscopes, no irrelevant results.
 
+**WhatsApp & Telegram Sharing**
+One-tap sharing to WhatsApp and Telegram with formatted text (bold titles, source attribution). Uses universal links with built-in web fallback. Also supports native iOS share sheet for any other app.
+
+**Push Notifications**
+Breaking news alerts for articles less than 30 minutes old. Starts with provisional (quiet) notifications — no prompt shown. Upgrades to full notifications after user engagement. Notification actions: "Read Article" opens the link, "Save for Later" bookmarks it.
+
+**Home Screen Widget**
+WidgetKit-powered breaking news widget in three sizes — small (single headline), medium (3 headlines), and lock screen (rectangular). Deep links to articles on tap. Refreshes every 15 minutes.
+
 **Commodity Groups**
-Commodities organized into 7 market groups — Grains, Edible Oils, Others, Fresh Produce, Dry Fruits, Spices, and Others-1 — each with horizontal sub-tab navigation for quick switching between related commodities.
+Commodities organized into 7 market groups — Grains, Edible Oils, Others, Fresh Produce, Dry Fruits, Spices, and Others-1 — each with horizontal sub-tab navigation. Last selected sub-tab is remembered per group.
 
 **Equity and Markets**
 Tracks Indian equity (Nifty, Sensex), global indices, crypto, and commodity-linked mutual funds with dedicated sub-tabs per category.
@@ -27,6 +36,9 @@ IMD forecasts, El Nino/La Nina outlook, and monsoon updates relevant to crop pla
 
 **Save and Export**
 Bookmark articles and export them as PDFs for offline use, reporting, or sharing.
+
+**AI Summaries**
+Apple Intelligence-powered article summaries with expand/collapse toggle.
 
 **Commodities Covered (40+)**
 
@@ -50,9 +62,10 @@ Bookmark articles and export them as PDFs for offline use, reporting, or sharing
 - No ads. No tracking. No analytics SDKs.
 - All data stored locally on device only.
 - Works on iPhone and iPad with adaptive layout (TabView on iPhone, NavigationSplitView on iPad).
-- Dark theme by default with glassmorphism-inspired surfaces.
+- Dark theme by default with glassmorphism side panel (blur material + navy tint).
+- Accessibility: solid fallback when Reduce Transparency is enabled.
 - Background refresh for up-to-date news without opening the app.
-- 6-tab navigation: Latest, Saved, Weather, Grains, Equity, More.
+- 5-tab navigation: Latest, Saved, Equity, Grains, More.
 - Side panel (More tab) for full commodity access with Command/Markets/Regulatory sections.
 
 ---
@@ -66,6 +79,9 @@ Bookmark articles and export them as PDFs for offline use, reporting, or sharing
 | Persistence | SwiftData |
 | Networking | URLSession + FeedKit (RSS parsing) |
 | HTML Parsing | SwiftSoup (PIB scraping) |
+| AI | Apple FoundationModels (on-device summarization) |
+| Notifications | UNUserNotificationCenter (local, provisional + full) |
+| Widgets | WidgetKit (small, medium, lock screen) |
 | News Sources | Google News RSS, PIB.gov.in |
 | CI/CD | Codemagic (Mac Mini M2, auto TestFlight) |
 | Minimum iOS | iOS 17 |
@@ -77,7 +93,7 @@ Bookmark articles and export them as PDFs for offline use, reporting, or sharing
 
 ```
 AgriPulse/
-├── AgriPulseApp.swift              # App entry point, SwiftData setup
+├── AgriPulseApp.swift              # App entry point, SwiftData setup, migrations
 ├── Constants/
 │   ├── CommoditySeeds.swift        # 40+ commodity definitions, search queries, MarketGroup
 │   ├── CalendarEvents.swift        # 130+ agricultural calendar events
@@ -87,10 +103,12 @@ AgriPulse/
 │   ├── NewsItem.swift              # SwiftData news article model
 │   └── CalendarEvent.swift         # Calendar event model
 ├── Services/
-│   ├── NewsService.swift           # News orchestration + refresh
+│   ├── NewsService.swift           # News orchestration + refresh + widget data
 │   ├── RSSFetcher.swift            # RSS fetching, HTML stripping, dedup
 │   ├── PIBService.swift            # Press Information Bureau scraping
 │   ├── NewsFilterEngine.swift      # Relevance + noise filtering
+│   ├── NotificationService.swift   # Push notifications, categories, actions
+│   ├── SummarizationService.swift  # Apple Intelligence article summaries
 │   └── BackgroundRefreshManager.swift
 ├── ViewModels/
 │   ├── NewsFeedViewModel.swift     # News feed + pagination logic
@@ -99,14 +117,14 @@ AgriPulse/
 │   ├── SavedArticlesViewModel.swift
 │   └── SidebarViewModel.swift      # Group-level fresh counts
 ├── Views/
-│   ├── ContentView.swift           # 6-tab layout, side panel integration
+│   ├── ContentView.swift           # 5-tab layout, side panel integration
 │   ├── SidebarView.swift           # iPad sidebar (Command/Markets/Regulatory)
-│   ├── SidePanelView.swift         # iPhone side panel (slides from left)
+│   ├── SidePanelView.swift         # iPhone glassmorphism side panel
 │   ├── Groups/
-│   │   └── CommodityGroupView.swift  # Generic group view with sub-tabs
+│   │   └── CommodityGroupView.swift  # Generic group view with remembered sub-tabs
 │   ├── News/
 │   │   ├── NewsFeedView.swift      # News list + pagination controls
-│   │   └── NewsCardView.swift      # Article card (age badges, accent bars)
+│   │   └── NewsCardView.swift      # Article card (age badges, share, WA/TG)
 │   ├── Equity/
 │   │   └── EquityMarketView.swift  # Equity sub-tabs (Indian/Global/Crypto/MF)
 │   ├── Calendar/
@@ -117,8 +135,11 @@ AgriPulse/
 │   └── Common/
 │       ├── BadgeViews.swift
 │       └── RefreshButton.swift
-└── Theme/
-    └── AgriPulseTheme.swift        # Colors, fonts, age-level styling
+├── Theme/
+│   └── AgriPulseTheme.swift        # Colors, fonts, age-level styling
+└── AgriPulseWidget/                # WidgetKit extension (needs Xcode target setup)
+    ├── AgriPulseWidgetBundle.swift
+    └── BreakingNewsWidget.swift    # Small, medium, lock screen widgets
 ```
 
 ---
@@ -138,6 +159,12 @@ open AgriPulse.xcodeproj
 
 Build and run on your target device or simulator. Swift Package Manager resolves FeedKit and SwiftSoup automatically.
 
+### Adding the Widget Extension
+1. In Xcode: File > New > Target > Widget Extension
+2. Name it `AgriPulseWidget`, uncheck "Include Configuration App Intent"
+3. Delete auto-generated files, use existing files in `AgriPulseWidget/`
+4. Add App Groups capability to both targets: `group.com.agripulse.app`
+
 ---
 
 ## CI/CD
@@ -145,10 +172,17 @@ Build and run on your target device or simulator. Swift Package Manager resolves
 Builds are handled by [Codemagic](https://codemagic.io) on Mac Mini M2 cloud machines:
 
 ```
-git push → Codemagic triggers → Resolve packages → Code sign → Build IPA → Upload to TestFlight
+git push → Codemagic triggers → Resolve packages → Lint → Security scan → Tests → Build → TestFlight
 ```
 
-Build numbers auto-increment from the latest TestFlight build. See `codemagic.yaml` for the full pipeline.
+Pipeline includes: Swift lint, SAST security scan, pen test audit, dependency vulnerability check, unit tests, performance audit. Build numbers auto-increment from the latest TestFlight build. See `codemagic.yaml` for the full pipeline.
+
+Deploy commands via `appstore_connect.py`:
+```bash
+python3 appstore_connect.py build --wait          # Trigger build
+python3 appstore_connect.py testflight --whats-new "..."  # Send to TestFlight
+python3 appstore_connect.py full --version 1.5 --whats-new "..."  # Full pipeline
+```
 
 ---
 

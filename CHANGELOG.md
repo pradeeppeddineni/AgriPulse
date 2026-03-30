@@ -2,6 +2,71 @@
 
 All notable changes to AgriPulse are documented here.
 
+## [1.5] - 2026-03-28
+
+### Added
+- **Glassmorphism side panel** — ultra-thin material blur, gradient accent, branded header with app icon, press animation on menu items
+- **Accessibility fallback** — solid background when Reduce Transparency is enabled
+- **WhatsApp sharing** — one-tap share via `wa.me` universal link with bold formatting
+- **Telegram sharing** — one-tap share via `t.me/share/url` universal link
+- **Share confirmation dialog** — choose WhatsApp, Telegram, or More (iOS share sheet)
+- **Push notifications** — local notifications for breaking news (articles < 30 min old)
+- **Provisional authorization** — quiet notifications on first launch, no prompt shown
+- **Notification upgrade** — auto-upgrades to full notifications after 3+ sessions
+- **Notification categories** — "Read Article" and "Save for Later" action buttons
+- **Notification deep linking** — tap notification to open the article
+- **Foreground notifications** — breaking alerts shown even when app is open
+- **Home screen widget** (source files) — small, medium, and lock screen sizes
+- **Widget deep linking** — tap widget article to open it
+- **Widget data pipeline** — latest articles pushed to shared UserDefaults for widget
+- **App Store metadata** — optimized English + Hindi localization, keyword strategy
+
+### Changed
+- Share encoding now uses custom CharacterSet that properly encodes `*`, `_`, `~`, `&`, `+`, `#` for WhatsApp bold formatting
+- Widget refresh interval reduced from 30 to 15 minutes
+- Side panel width increased from 280 to 290, corner radius increased to 24
+
+### Fixed
+- WhatsApp bold text (`*title*`) not rendering due to `*` not being percent-encoded
+- Telegram share falling back incorrectly — now uses universal links with web fallback
+
+## [1.4] - 2026-03-28
+
+### Added
+- New app icon — wheat heartbeat logo with green background, edge-to-edge fill
+
+### Fixed
+- App icon black border — removed alpha channel, filled full area
+- Text contrast improved across all views for better readability
+
+## [1.3] - 2026-03-27
+
+### Added
+- **Pagination** across all commodity tabs (50 articles per page)
+- **Native share sheet** (UIActivityViewController) on every news card
+- **Swipe gesture** — swipe right from left edge to open side panel
+- **Pull-to-refresh** on all news lists, group views, and equity view
+- **Search bar** on news feed and saved articles
+- **Rate/review prompt** after 5th session (max once per 90 days)
+- **AI article summaries** using Apple FoundationModels (on-device)
+- **Commodity Calendar** — full calendar view with 130+ agricultural events
+- **Google News URL resolution** — resolves redirect URLs before sharing
+
+### Fixed
+- All 12 v1.2 bugs:
+  - Raw HTML/URLs in news snippets
+  - AI Summary displaying raw Response object
+  - News retention too short (now 30 days default, 365 for Wheat)
+  - Missing queries/sources vs Replit web app (added 30+ queries, 20+ sources)
+  - Empty commodity tabs (Cotton Seed Oil, Psyllium)
+  - IMD/Advisories missing ICAR articles
+  - Maize not appearing in Latest tab
+  - India/Global misclassification
+  - Currency tab missing articles
+  - Poor font contrast on older cards
+  - Equity Market access buried in side panel
+  - Duplicate articles with different Google News URLs
+
 ## [1.2] - 2026-03-26
 
 ### Added
