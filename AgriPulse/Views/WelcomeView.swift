@@ -85,7 +85,7 @@ struct WelcomeView: View {
                 Button(action: onContinue) {
                     Text("Continue")
                         .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(AgriPulseTheme.primaryForeground)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
                         .background(AgriPulseTheme.primary)
@@ -96,7 +96,7 @@ struct WelcomeView: View {
                 .opacity(buttonOpacity)
             }
         }
-        .preferredColorScheme(.dark)
+        // Inherits color scheme from parent
         .onAppear {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.1)) {
                 logoScale = 1.0
@@ -158,7 +158,7 @@ struct SplashView: View {
                     .opacity(logoOpacity)
             }
         }
-        .preferredColorScheme(.dark)
+        // Inherits color scheme from parent
         .onAppear {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                 logoScale = 1.0

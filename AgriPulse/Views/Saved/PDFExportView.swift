@@ -30,7 +30,7 @@ struct PDFExportView: View {
                         Text("Share PDF")
                     }
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(AgriPulseTheme.primaryForeground)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
                     .background(AgriPulseTheme.primary)
@@ -48,7 +48,7 @@ struct PDFExportView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
+        // Inherits color scheme from parent
     }
 
     private func sharePDF() {

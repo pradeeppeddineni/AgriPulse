@@ -81,7 +81,7 @@ struct SavedArticlesView: View {
                             Text("Share PDF (\(articlesInRange.count) articles)")
                         }
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(AgriPulseTheme.primaryForeground)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(AgriPulseTheme.primary)

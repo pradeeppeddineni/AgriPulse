@@ -64,7 +64,10 @@ enum AgriPulseTheme {
     )
 
     /// Card text (same as foreground)
-    static let cardForeground = foreground
+    static let cardForeground = adaptive(
+        light: UIColor(red: 0.11, green: 0.11, blue: 0.12, alpha: 1),
+        dark:  hsbColor(h: 214, s: 0.40, b: 0.95)
+    )
 
     /// Muted / secondary text
     static let mutedForeground = adaptive(

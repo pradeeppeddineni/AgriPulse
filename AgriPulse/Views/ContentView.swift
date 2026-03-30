@@ -43,7 +43,7 @@ struct ContentView: View {
                 iPhoneLayout
             }
         }
-        .preferredColorScheme(isDarkMode ? .dark : .light)
+        // Color scheme set at app level in AgriPulseApp
         .onAppear {
             sidebarVM.load(context: modelContext)
         }

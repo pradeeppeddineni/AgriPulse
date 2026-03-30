@@ -42,6 +42,7 @@ struct AgriPulseApp: App {
     }
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage("isDarkMode") private var isDarkMode = true
     @State private var showSplash = true
 
     var body: some Scene {
@@ -78,7 +79,7 @@ struct AgriPulseApp: App {
                         }
                 }
             }
-            .preferredColorScheme(.dark)
+            .preferredColorScheme(isDarkMode ? .dark : .light)
         }
     }
 
