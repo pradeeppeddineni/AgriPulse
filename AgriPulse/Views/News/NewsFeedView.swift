@@ -84,20 +84,12 @@ struct NewsFeedView: View {
             if commodity == nil {
                 ToolbarItem(placement: .topBarLeading) {
                     HStack(spacing: 6) {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [AgriPulseTheme.primary, AgriPulseTheme.primary.opacity(0.7)],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
+                        if let uiImage = UIImage(named: "AppIcon") {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
                                 .frame(width: 28, height: 28)
-
-                            Image(systemName: "chart.bar.fill")
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 7))
                         }
 
                         Text("AgriPulse")
