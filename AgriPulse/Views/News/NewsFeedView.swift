@@ -81,6 +81,31 @@ struct NewsFeedView: View {
             await viewModel.refresh(context: modelContext)
         }
         .toolbar {
+            if commodity == nil {
+                ToolbarItem(placement: .topBarLeading) {
+                    HStack(spacing: 6) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [AgriPulseTheme.primary, AgriPulseTheme.primary.opacity(0.7)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .frame(width: 28, height: 28)
+
+                            Image(systemName: "chart.bar.fill")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(.white)
+                        }
+
+                        Text("AgriPulse")
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                            .foregroundStyle(AgriPulseTheme.foreground)
+                    }
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 RefreshButton(isRefreshing: viewModel.isRefreshing) {
                     Task {

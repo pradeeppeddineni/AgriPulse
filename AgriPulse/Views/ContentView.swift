@@ -14,7 +14,7 @@ struct ContentView: View {
     enum AppTab: String, CaseIterable {
         case latest = "Latest"
         case saved = "Saved"
-        case equity = "Equity"
+        case weather = "Weather"
         case grains = "Grains"
         case more = "More"
     }
@@ -103,13 +103,13 @@ struct ContentView: View {
                 .tag(AppTab.saved)
 
                 NavigationStack {
-                    EquityMarketView()
+                    NewsFeedView(commodity: sidebarVM.commodity(named: "Agri Weather"))
                 }
                 .tabItem {
-                    Label("Equity", systemImage: "chart.line.uptrend.xyaxis")
+                    Label("Weather", systemImage: "cloud.sun.fill")
                 }
-                .tag(AppTab.equity)
-                .badge(sidebarVM.equityFreshCount)
+                .tag(AppTab.weather)
+                .badge(sidebarVM.weatherFreshCount)
 
                 NavigationStack {
                     if let grainsGroup = CommoditySeeds.marketGroups.first(where: { $0.slug == "grains" }) {
@@ -130,7 +130,6 @@ struct ContentView: View {
                     Label("More", systemImage: "ellipsis")
                 }
                 .tag(AppTab.more)
-                .badge(sidebarVM.equityFreshCount)
             }
             .tint(AgriPulseTheme.primary)
             .onChange(of: selectedTab) { _, newTab in
@@ -165,8 +164,9 @@ struct ContentView: View {
                     showCalendarSheet = true
                 },
                 onSelectEquity: {
+                    moreDestination = .equity
                     showSidePanel = false
-                    selectedTab = .equity
+                    selectedTab = .more
                 }
             )
         }
@@ -194,8 +194,8 @@ struct ContentView: View {
             NewsFeedView(commodity: sidebarVM.selectedCommodity)
         case .saved:
             SavedArticlesView()
-        case .equity:
-            EquityMarketView()
+        case .weather:
+            NewsFeedView(commodity: sidebarVM.commodity(named: "Agri Weather"))
         case .grains:
             if let grainsGroup = CommoditySeeds.marketGroups.first(where: { $0.slug == "grains" }) {
                 CommodityGroupView(group: grainsGroup)
@@ -207,7 +207,7 @@ struct ContentView: View {
 
     private var tabPicker: some View {
         Picker("Tab", selection: $selectedTab) {
-            ForEach(AppTab.allCases.filter({ $0 != .more }), id: \.self) { tab in
+            ForEach(AppTab.allCases.filter { $0 != .more }, id: \.self) { tab in
                 Text(tab.rawValue).tag(tab)
             }
         }

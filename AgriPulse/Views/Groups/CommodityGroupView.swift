@@ -152,9 +152,30 @@ struct CommodityGroupView: View {
 private struct GroupTabContent: View {
     let commodity: Commodity
     @Environment(\.modelContext) private var modelContext
+    @State private var currentPage = 1
+
+    private let pageSize = 25
 
     var sortedNews: [NewsItem] {
         (commodity.newsItems ?? []).sorted { $0.publishedAt > $1.publishedAt }
+    }
+
+    var totalPages: Int {
+        max(1, Int(ceil(Double(sortedNews.count) / Double(pageSize))))
+    }
+
+    var paginatedNews: [NewsItem] {
+        let start = (currentPage - 1) * pageSize
+        let end = min(start + pageSize, sortedNews.count)
+        guard start < sortedNews.count else { return [] }
+        return Array(sortedNews[start..<end])
+    }
+
+    var statusText: String {
+        let total = sortedNews.count
+        let start = (currentPage - 1) * pageSize + 1
+        let end = min(currentPage * pageSize, total)
+        return "\(start)-\(end) of \(total) updates · page \(currentPage) of \(totalPages)"
     }
 
     var body: some View {
@@ -174,7 +195,22 @@ private struct GroupTabContent: View {
             .padding(.top, 60)
         } else {
             LazyVStack(spacing: 0) {
-                ForEach(Array(sortedNews.enumerated()), id: \.element.id) { index, item in
+                // Status bar
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(AgriPulseTheme.freshEmerald)
+                        .frame(width: 6, height: 6)
+                        .opacity(0.7)
+                    Text(statusText)
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
+                    Spacer()
+                }
+                .padding(.horizontal, 12)
+                .padding(.top, 4)
+                .padding(.bottom, 8)
+
+                ForEach(Array(paginatedNews.enumerated()), id: \.element.id) { index, item in
                     NewsCardView(item: item, commodityName: commodity.name, onToggleSave: {
                         item.isSaved.toggle()
                         try? modelContext.save()
@@ -184,11 +220,71 @@ private struct GroupTabContent: View {
                         .padding(.horizontal, 12)
                         .padding(.vertical, 4)
                         .transition(.opacity.combined(with: .move(edge: .bottom)))
-                        .animation(.easeOut(duration: 0.2).delay(Double(min(index, 10)) * 0.03), value: sortedNews.count)
+                        .animation(.easeOut(duration: 0.2).delay(Double(min(index, 10)) * 0.03), value: paginatedNews.count)
+                }
+
+                // Pagination controls
+                if totalPages > 1 {
+                    paginationControls
                 }
             }
             .padding(.vertical, 8)
         }
+    }
+
+    private var paginationControls: some View {
+        HStack(spacing: 8) {
+            Button {
+                currentPage = max(1, currentPage - 1)
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(currentPage > 1 ? AgriPulseTheme.primary : AgriPulseTheme.mutedForeground.opacity(0.3))
+                    .frame(width: 32, height: 32)
+                    .background(AgriPulseTheme.card)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .disabled(currentPage <= 1)
+
+            ForEach(pageNumbers, id: \.self) { page in
+                Button {
+                    currentPage = page
+                } label: {
+                    Text("\(page)")
+                        .font(.system(size: 12, weight: currentPage == page ? .bold : .medium))
+                        .foregroundStyle(currentPage == page ? AgriPulseTheme.primaryForeground : AgriPulseTheme.mutedForeground)
+                        .frame(width: 32, height: 32)
+                        .background(currentPage == page ? AgriPulseTheme.primary : AgriPulseTheme.card)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+            }
+
+            Button {
+                currentPage = min(totalPages, currentPage + 1)
+            } label: {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(currentPage < totalPages ? AgriPulseTheme.primary : AgriPulseTheme.mutedForeground.opacity(0.3))
+                    .frame(width: 32, height: 32)
+                    .background(AgriPulseTheme.card)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .disabled(currentPage >= totalPages)
+        }
+        .padding(.vertical, 16)
+    }
+
+    private var pageNumbers: [Int] {
+        let maxVisible = 7
+        if totalPages <= maxVisible { return Array(1...totalPages) }
+        let half = maxVisible / 2
+        var start = max(1, currentPage - half)
+        var end = start + maxVisible - 1
+        if end > totalPages {
+            end = totalPages
+            start = max(1, end - maxVisible + 1)
+        }
+        return Array(start...end)
     }
 }
 

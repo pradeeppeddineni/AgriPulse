@@ -21,15 +21,8 @@ final class NewsFeedViewModel {
 
     private var commodity: Commodity?
 
-    // Pagination config per commodity
-    private var pageSize: Int {
-        guard let name = commodity?.name else { return 50 }
-        switch name {
-        case "Wheat": return 50
-        case "PIB Updates": return 25
-        default: return 50
-        }
-    }
+    // Pagination: 25 items per page for all views
+    private var pageSize: Int { 25 }
 
     var isPaginated: Bool { pageSize > 0 }
 

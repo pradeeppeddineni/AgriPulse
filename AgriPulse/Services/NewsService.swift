@@ -25,6 +25,10 @@ final class NewsService {
         }
     }
 
+    /// Tracks newly inserted articles for notification dispatch
+    private var newlyInsertedArticles: [(title: String, source: String, commodity: String, link: String, publishedAt: Date)] = []
+    private var isBatchRefreshing = false
+
     /// Fetch and filter news for a single commodity, inserting new items into SwiftData
     func refreshNews(for commodity: Commodity, context: ModelContext) async -> Int {
         let queries = commodity.searchQueries
@@ -91,10 +95,25 @@ final class NewsService {
             )
             context.insert(newsItem)
             insertedCount += 1
+
+            newlyInsertedArticles.append((
+                title: article.title,
+                source: article.source,
+                commodity: commodity.name,
+                link: article.link,
+                publishedAt: article.publishedAt
+            ))
         }
 
         try? context.save()
         UserDefaults.standard.set(Date(), forKey: "lastSyncedAt")
+
+        // Send notifications for single-commodity refreshes (not during batch)
+        if !isBatchRefreshing && !newlyInsertedArticles.isEmpty {
+            NotificationService.shared.notifyBreakingArticles(newlyInsertedArticles)
+            newlyInsertedArticles.removeAll()
+        }
+
         return insertedCount
     }
 
@@ -103,6 +122,8 @@ final class NewsService {
         let descriptor = FetchDescriptor<Commodity>(sortBy: [SortDescriptor(\.sortOrder)])
         guard let commodities = try? context.fetch(descriptor) else { return 0 }
 
+        isBatchRefreshing = true
+        newlyInsertedArticles.removeAll()
         var total = 0
         // Process in batches of 5 to avoid rate-limiting
         let batchSize = 5
@@ -128,6 +149,13 @@ final class NewsService {
 
         // Update widget data
         updateWidgetData(context: context)
+
+        // Send notifications for breaking news
+        isBatchRefreshing = false
+        if !newlyInsertedArticles.isEmpty {
+            NotificationService.shared.notifyBreakingArticles(newlyInsertedArticles)
+            newlyInsertedArticles.removeAll()
+        }
 
         return total
     }
