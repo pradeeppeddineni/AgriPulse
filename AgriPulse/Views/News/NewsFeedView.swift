@@ -5,6 +5,7 @@ struct NewsFeedView: View {
     let commodity: Commodity?
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = NewsFeedViewModel()
+    @AppStorage("isDarkMode") private var isDarkMode = true
     @State private var showSearchBar = false
     @FocusState private var searchFocused: Bool
 
@@ -163,8 +164,8 @@ struct NewsFeedView: View {
 
                 Spacer()
 
-                // Right: Search + Refresh
-                HStack(spacing: 12) {
+                // Right: Search + Theme Toggle + Refresh
+                HStack(spacing: 10) {
                     Button {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             showSearchBar.toggle()
@@ -177,20 +178,61 @@ struct NewsFeedView: View {
                         }
                     } label: {
                         Image(systemName: showSearchBar ? "xmark" : "magnifyingglass")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(AgriPulseTheme.primary)
-                            .frame(width: 42, height: 42)
+                            .frame(width: 38, height: 38)
                             .background(AgriPulseTheme.card)
                             .clipShape(Circle())
+                    }
+
+                    // Theme toggle
+                    Button {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                            isDarkMode.toggle()
+                        }
+                    } label: {
+                        ZStack {
+                            // Sun (light mode indicator)
+                            Image(systemName: "sun.max.fill")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [.orange, .yellow],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .rotationEffect(.degrees(isDarkMode ? -90 : 0))
+                                .scaleEffect(isDarkMode ? 0.0 : 1.0)
+                                .opacity(isDarkMode ? 0 : 1)
+
+                            // Moon (dark mode indicator)
+                            Image(systemName: "moon.fill")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [Color(red: 0.6, green: 0.6, blue: 1.0), Color(red: 0.4, green: 0.4, blue: 0.9)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .rotationEffect(.degrees(isDarkMode ? 0 : 90))
+                                .scaleEffect(isDarkMode ? 1.0 : 0.0)
+                                .opacity(isDarkMode ? 1 : 0)
+                        }
+                        .frame(width: 38, height: 38)
+                        .background(AgriPulseTheme.card)
+                        .clipShape(Circle())
                     }
 
                     Button {
                         Task { await viewModel.refresh(context: modelContext) }
                     } label: {
                         Image(systemName: "arrow.clockwise")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(AgriPulseTheme.primary)
-                            .frame(width: 42, height: 42)
+                            .frame(width: 38, height: 38)
                             .background(AgriPulseTheme.card)
                             .clipShape(Circle())
                             .rotationEffect(.degrees(viewModel.isRefreshing ? 360 : 0))

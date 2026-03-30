@@ -269,8 +269,8 @@ struct NewsCardView: View {
                     // Favicon
                     SourceFavicon(source: item.source)
 
-                    // Source name (title case)
-                    Text(item.source.localizedCapitalized)
+                    // Source name
+                    Text(item.source)
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.8))
                         .lineLimit(1)
@@ -329,8 +329,9 @@ struct NewsCardView: View {
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke(AgriPulseTheme.border.opacity(0.25), lineWidth: 1)
+                .stroke(AgriPulseTheme.border.opacity(0.25), lineWidth: 0.5)
         )
+        .shadow(color: AgriPulseTheme.cardShadowColor, radius: AgriPulseTheme.cardShadowRadius, x: 0, y: 2)
         .scaleEffect(isPressed ? 0.98 : 1.0)
         .opacity(isPressed ? 0.9 : 1.0)
         .animation(.easeInOut(duration: 0.15), value: isPressed)

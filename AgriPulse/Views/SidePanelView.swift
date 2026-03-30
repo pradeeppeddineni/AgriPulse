@@ -75,6 +75,7 @@ struct SidePanelView: View {
                     )
                     .shadow(color: AgriPulseTheme.primary.opacity(0.08), radius: 30, x: 8)
                     .shadow(color: .black.opacity(0.4), radius: 20, x: 5)
+                    .environment(\.colorScheme, .dark)
                     .offset(x: isPresented ? 0 : -panelWidth - 20)
 
                 Spacer()

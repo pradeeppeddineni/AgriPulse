@@ -5,6 +5,7 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.horizontalSizeClass) private var sizeClass
     @Environment(\.scenePhase) private var scenePhase
+    @AppStorage("isDarkMode") private var isDarkMode = true
     @State private var sidebarVM = SidebarViewModel()
     @State private var selectedTab: AppTab = .latest
     @State private var showSidePanel = false
@@ -42,7 +43,7 @@ struct ContentView: View {
                 iPhoneLayout
             }
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(isDarkMode ? .dark : .light)
         .onAppear {
             sidebarVM.load(context: modelContext)
         }

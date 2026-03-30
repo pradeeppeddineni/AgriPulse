@@ -99,7 +99,7 @@ struct SavedArticlesView: View {
                     }
                 }
             }
-            .preferredColorScheme(.dark)
+            // Inherits color scheme from parent
         }
         .onAppear {
             viewModel.load(context: modelContext)

@@ -33,6 +33,7 @@ struct AgriPulseRefreshView: View {
                 Capsule()
                     .stroke(AgriPulseTheme.border.opacity(0.3), lineWidth: 1)
             )
+            .shadow(color: AgriPulseTheme.cardShadowColor, radius: 10, x: 0, y: 4)
             .transition(.move(edge: .top).combined(with: .opacity))
             .onAppear {
                 withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
