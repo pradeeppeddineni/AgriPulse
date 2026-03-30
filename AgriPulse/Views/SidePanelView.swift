@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct SidePanelView: View {
     @Binding var isPresented: Bool
@@ -96,23 +97,12 @@ struct SidePanelView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 12) {
                     // App icon
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        AgriPulseTheme.primary,
-                                        AgriPulseTheme.primary.opacity(0.7)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
+                    if let uiImage = UIImage(named: "AppIcon") {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
                             .frame(width: 40, height: 40)
-
-                        Image(systemName: "chart.bar.fill")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
 
                     VStack(alignment: .leading, spacing: 2) {

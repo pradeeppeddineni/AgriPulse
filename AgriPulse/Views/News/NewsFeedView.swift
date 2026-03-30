@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct NewsFeedView: View {
     let commodity: Commodity?
@@ -83,18 +84,12 @@ struct NewsFeedView: View {
         .toolbar {
             if commodity == nil {
                 ToolbarItem(placement: .topBarLeading) {
-                    HStack(spacing: 6) {
-                        if let uiImage = UIImage(named: "AppIcon") {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 28, height: 28)
-                                .clipShape(RoundedRectangle(cornerRadius: 7))
-                        }
-
-                        Text("AgriPulse")
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
-                            .foregroundStyle(AgriPulseTheme.foreground)
+                    if let uiImage = UIImage(named: "AppIcon") {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 32, height: 32)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
                 }
             }
