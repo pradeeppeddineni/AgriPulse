@@ -52,9 +52,21 @@ enum NewsFilterEngine {
             || lower.contains("vietnam") || lower.contains("ivory coast")
     }
 
-    /// PIB-specific: check if title is commodity-related
+    /// PIB-specific: check if title is commodity-related AND not noise
     static func isPIBCommodityRelated(_ text: String) -> Bool {
         let lower = text.lowercased()
+
+        // Reject noise patterns first
+        if KeywordLists.noisePatterns.contains(where: { lower.contains($0) }) {
+            return false
+        }
+
+        // Reject PIB-specific noise (government press releases that match keywords but aren't commodity news)
+        if KeywordLists.pibNoisePatterns.contains(where: { lower.contains($0) }) {
+            return false
+        }
+
+        // Must contain at least one commodity keyword
         return KeywordLists.pibCommodityKeywords.contains { lower.contains($0) }
     }
 }

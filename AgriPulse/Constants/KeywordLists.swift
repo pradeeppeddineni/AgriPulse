@@ -106,6 +106,34 @@ enum KeywordLists {
         "Potato": ["couch potato", "hot potato", "potato chip recipe"],
     ]
 
+    // MARK: - PIB noise patterns (government press releases that match keywords but aren't commodity news)
+    static let pibNoisePatterns: [String] = [
+        // Governance/civic that falsely matches "gram", "seed", "food"
+        "gram panchayat", "gram sabha", "grampanchayat",
+        "gram swaraj", "gram nyayalaya",
+        // Awards/ceremonies that mention "crop" or "harvest" metaphorically
+        "film festival", "national award", "padma shri", "padma bhushan",
+        "republic day parade", "independence day parade",
+        // Defence/military that mentions "food" or "procurement"
+        "defence procurement", "military procurement", "naval procurement",
+        "defence acquisition", "fighter jet", "missile",
+        // Space/science
+        "isro", "chandrayaan", "space mission", "satellite launch",
+        // Sports
+        "cricket", "ipl", "world cup", "olympic", "commonwealth games",
+        // General government (too broad to be useful)
+        "cabinet approves appointment", "appointment of",
+        "condolences", "demise of", "passes away",
+        "foreign visit", "bilateral meeting", "g20 summit", "g7 summit",
+        // Education
+        "university grant", "ugc", "neet exam", "jee exam",
+        // Health (not agri)
+        "covid", "pandemic", "vaccination drive",
+        // Infrastructure (not agri)
+        "railway", "metro rail", "highway", "expressway", "airport",
+        "smart city", "housing scheme",
+    ]
+
     // MARK: - PIB commodity keywords (from pib.ts lines 7-25)
     static let pibCommodityKeywords: [String] = [
         "agri", "farm", "farmer", "kisan", "crop", "harvest", "yield", "sowing",
