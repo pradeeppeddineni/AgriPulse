@@ -60,6 +60,7 @@ final class NewsFeedViewModel {
         "fresh": ["Potato", "Cabbage / Carrot", "Ring beans", "Onion", "Potato (Mandi)"],
         "spices": ["Chilli powder", "Turmeric", "Black pepper", "Cardamom"],
         "dryfruits": ["Cashew", "Almond", "Raisins", "Groundnut", "Oats", "Psyllium / Isabgol"],
+        "others1": ["Sugar", "Milk / Dairy", "Cocoa"],
         "markets": ["Crude", "Precious Metals", "Currency"],
     ]
 

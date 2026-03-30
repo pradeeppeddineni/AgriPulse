@@ -20,9 +20,9 @@ struct NewsFeedView: View {
     // Category pills for Latest tab
     private let categories: [(label: String, icon: String, filter: String)] = [
         ("All", "newspaper", ""),
+        ("Grains", "leaf", "grains"),
         ("Oils", "drop", "oils"),
-        ("Fresh", "carrot", "fresh"),
-        ("Spices", "flame", "spices"),
+        ("Others 1", "shippingbox", "others1"),
         ("Dry Fruits", "leaf.circle", "dryfruits"),
         ("Markets", "chart.bar", "markets"),
     ]
@@ -41,27 +41,40 @@ struct NewsFeedView: View {
                         standardStatusBar
                     } else {
                         // Compact status for latest tab
-                        HStack(spacing: 6) {
-                            Circle()
-                                .fill(viewModel.isRefreshing ? AgriPulseTheme.hotAmber : AgriPulseTheme.freshEmerald)
-                                .frame(width: 6, height: 6)
-                                .opacity(viewModel.isRefreshing ? 1 : 0.7)
-                                .animation(
-                                    viewModel.isRefreshing
-                                        ? .easeInOut(duration: 0.6).repeatForever(autoreverses: true)
-                                        : .default,
-                                    value: viewModel.isRefreshing
-                                )
+                        VStack(spacing: 4) {
+                            if let syncText = viewModel.lastSyncedText {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "clock")
+                                        .font(.system(size: 10))
+                                    Text(syncText)
+                                        .font(.system(size: 11))
+                                }
+                                .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
 
-                            Text(viewModel.statusText)
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundStyle(
-                                    viewModel.isRefreshing
-                                        ? AgriPulseTheme.hotAmber.opacity(0.8)
-                                        : AgriPulseTheme.mutedForeground.opacity(0.5)
-                                )
+                            HStack(spacing: 6) {
+                                Circle()
+                                    .fill(viewModel.isRefreshing ? AgriPulseTheme.hotAmber : AgriPulseTheme.freshEmerald)
+                                    .frame(width: 6, height: 6)
+                                    .opacity(viewModel.isRefreshing ? 1 : 0.7)
+                                    .animation(
+                                        viewModel.isRefreshing
+                                            ? .easeInOut(duration: 0.6).repeatForever(autoreverses: true)
+                                            : .default,
+                                        value: viewModel.isRefreshing
+                                    )
 
-                            Spacer()
+                                Text(viewModel.statusText)
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundStyle(
+                                        viewModel.isRefreshing
+                                            ? AgriPulseTheme.hotAmber.opacity(0.8)
+                                            : AgriPulseTheme.mutedForeground.opacity(0.5)
+                                    )
+
+                                Spacer()
+                            }
                         }
                     }
 
