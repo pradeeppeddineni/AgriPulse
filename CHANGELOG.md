@@ -2,6 +2,25 @@
 
 All notable changes to AgriPulse are documented here.
 
+## [1.5] - 2026-03-30 (Build 41)
+
+### Added
+- **Light mode** — full adaptive color system using UIColor dynamic providers; #F2F2F7 light background, white cards with soft shadows, deeper badge colors
+- **Sun/moon theme toggle** — animated icon next to search bar with gradient colors, spring animation, haptic feedback, persists via @AppStorage
+- **Favicon caching** — in-memory cache for source favicons, prevents repeated network requests during scroll
+- **Background refresh** — BGAppRefreshTask registered and scheduled on launch + background entry; enables notifications when app is closed
+
+### Changed
+- Card layout reverted to compact style: uniform 14pt title font, top accent bar, tighter 12px spacing between cards, no hero card
+- Pagination now scrolls to top when changing pages (NewsFeedView, CommodityGroupView, EquityMarketView)
+- PIB keyword filtering tightened: removed broad words (food, seed, soil, cooperative), added noise patterns for non-agri government releases
+- Source names preserve original casing (NDTV stays NDTV)
+- Card tint halved for breaking/hot/fresh badges
+- Side panel stays dark in both light and dark modes (intentional design choice)
+- All hardcoded .dark references fixed for adaptive theme across every page
+
+---
+
 ## [1.5] - 2026-03-28
 
 ### Added
