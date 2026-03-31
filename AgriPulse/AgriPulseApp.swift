@@ -43,6 +43,7 @@ struct AgriPulseApp: App {
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @AppStorage("isDarkMode") private var isDarkMode = true
+    @Environment(\.scenePhase) private var scenePhase
     @State private var showSplash = true
 
     var body: some Scene {
@@ -52,6 +53,8 @@ struct AgriPulseApp: App {
                     .modelContainer(modelContainer)
                     .task {
                         NotificationService.shared.setup()
+                        BackgroundRefreshManager.shared.registerBackgroundTask()
+                        BackgroundRefreshManager.shared.scheduleRefresh()
                         await initialRefreshIfNeeded(context: modelContainer.mainContext)
                         requestReviewIfNeeded()
                         NotificationService.shared.requestProvisionalPermission()
@@ -80,6 +83,11 @@ struct AgriPulseApp: App {
                 }
             }
             .preferredColorScheme(isDarkMode ? .dark : .light)
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .background {
+                    BackgroundRefreshManager.shared.scheduleRefresh()
+                }
+            }
         }
     }
 

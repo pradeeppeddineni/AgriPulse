@@ -36,8 +36,11 @@ struct NewsFeedView: View {
                 latestHeader
             }
 
+            ScrollViewReader { proxy in
             ScrollView {
-                LazyVStack(spacing: 16) {
+                LazyVStack(spacing: 12) {
+                    Color.clear.frame(height: 0).id("feedTop")
+
                     if !isLatestTab {
                         standardStatusBar
                     } else {
@@ -87,7 +90,6 @@ struct NewsFeedView: View {
                                 item: item,
                                 commodityName: commodity == nil ? item.commodity?.name : nil,
                                 index: index,
-                                isHero: index == 0 && viewModel.currentPage == 1,
                                 onToggleSave: {
                                     viewModel.toggleSave(item, context: modelContext)
                                 },
@@ -109,6 +111,10 @@ struct NewsFeedView: View {
                 await viewModel.refresh(context: modelContext)
             }
             .agriPulseRefresh(isRefreshing: viewModel.isRefreshing)
+            .onChange(of: viewModel.currentPage) {
+                withAnimation { proxy.scrollTo("feedTop", anchor: .top) }
+            }
+            } // ScrollViewReader
         }
         .background(AgriPulseTheme.background)
         .navigationTitle(isLatestTab ? "" : (commodity?.name ?? ""))

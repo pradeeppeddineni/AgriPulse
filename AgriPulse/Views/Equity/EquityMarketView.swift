@@ -200,7 +200,10 @@ private struct EquityTabContent: View {
             }
             .padding(.top, 60)
         } else {
+            ScrollViewReader { proxy in
             LazyVStack(spacing: 0) {
+                Color.clear.frame(height: 0).id("equityTop")
+
                 // Status bar
                 HStack(spacing: 6) {
                     Circle()
@@ -217,7 +220,7 @@ private struct EquityTabContent: View {
                 .padding(.bottom, 8)
 
                 ForEach(Array(paginatedNews.enumerated()), id: \.element.id) { index, item in
-                    NewsCardView(item: item, commodityName: commodity.name, index: index, isHero: index == 0 && currentPage == 1, onToggleSave: {
+                    NewsCardView(item: item, commodityName: commodity.name, index: index, onToggleSave: {
                         item.isSaved.toggle()
                         try? modelContext.save()
                     }, onSummarize: {
@@ -225,8 +228,6 @@ private struct EquityTabContent: View {
                     })
                         .padding(.horizontal, 16)
                         .padding(.vertical, 4)
-                        .transition(.opacity.combined(with: .move(edge: .bottom)))
-                        .animation(.easeOut(duration: 0.2).delay(Double(min(index, 10)) * 0.03), value: paginatedNews.count)
                 }
 
                 // Pagination controls
@@ -235,6 +236,10 @@ private struct EquityTabContent: View {
                 }
             }
             .padding(.vertical, 8)
+            .onChange(of: currentPage) {
+                withAnimation { proxy.scrollTo("equityTop", anchor: .top) }
+            }
+            } // ScrollViewReader
         }
     }
 

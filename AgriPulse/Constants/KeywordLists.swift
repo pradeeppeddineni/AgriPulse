@@ -132,9 +132,18 @@ enum KeywordLists {
         // Infrastructure (not agri)
         "railway", "metro rail", "highway", "expressway", "airport",
         "smart city", "housing scheme",
+        // Additional noise
+        "coal", "steel", "petroleum minister", "petroleum ministry",
+        "tribal affairs", "skill development", "startup india",
+        "digital india", "ayushman bharat", "jan dhan",
+        "swachh bharat", "make in india", "income tax",
+        "gst council", "telecom", "spectrum auction",
+        "police", "prison", "court order", "supreme court",
+        "election commission", "polling", "constituency",
     ]
 
     // MARK: - PIB commodity keywords (from pib.ts lines 7-25)
+    // Tightened: removed overly broad words (food, seed, soil, cooperative) that match non-agri PIB releases
     static let pibCommodityKeywords: [String] = [
         "agri", "farm", "farmer", "kisan", "crop", "harvest", "yield", "sowing",
         "rabi", "kharif", "msp", "minimum support price", "procurement",
@@ -143,15 +152,14 @@ enum KeywordLists {
         "sugar", "sugarcane", "ethanol", "frp",
         "cotton", "jute",
         "pulses", "chana", "tur", "urad", "moong", "masur", "lentil",
-        "oilseed", "soybean", "groundnut", "mustard", "sunflower", "sesame", "palm",
-        "onion", "tomato", "potato", "vegetable", "horticulture", "fruit",
+        "oilseed", "soybean", "groundnut", "mustard", "sunflower", "sesame", "palm oil",
+        "onion", "tomato", "potato", "vegetable", "horticulture",
         "cashew", "spice", "turmeric", "pepper", "guar",
         "fertilizer", "urea", "dap",
-        "food", "grain", "storage", "buffer stock", "food security",
+        "food grain", "foodgrain", "buffer stock", "food security",
         "food processing", "food corporation",
-        "irrigation", "soil", "seed", "pesticide",
         "pm-kisan", "pmkisan", "kisaan",
-        "cooperative", "credit society",
         "fisheries", "animal husbandry",
+        "irrigation", "pesticide",
     ]
 }

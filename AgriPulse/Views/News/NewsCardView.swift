@@ -4,14 +4,12 @@ struct NewsCardView: View {
     let item: NewsItem
     var commodityName: String?
     var index: Int = 0
-    var isHero: Bool = false
     var onToggleSave: (() -> Void)?
     var onSummarize: (() -> Void)?
     @State private var appeared = false
     @State private var isSummarizing = false
     @State private var summaryExpanded = false
     @State private var showShareOptions = false
-    @State private var isPressed = false
 
     /// True if the snippet is just the title repeated (common with Google News RSS)
     private var isSnippetDuplicateOfTitle: Bool {
@@ -124,22 +122,22 @@ struct NewsCardView: View {
 
     var body: some View {
         let (level, ageLabel) = AgeLevel.from(publishedAt: item.publishedAt)
-        let titleSize: CGFloat = isHero ? 18 : 15
-        let cardPadding: CGFloat = isHero ? 18 : 16
 
-        HStack(spacing: 0) {
-            // Left accent bar for breaking/hot/fresh
+        VStack(alignment: .leading, spacing: 0) {
+            // Top accent bar for breaking/hot/fresh
             if level == .breaking || level == .hot || level == .fresh {
-                RoundedRectangle(cornerRadius: 2)
+                Rectangle()
                     .fill(level.accentColor.gradient)
-                    .frame(width: 3)
-                    .padding(.vertical, 8)
+                    .frame(height: 2.5)
             }
 
-            VStack(alignment: .leading, spacing: isHero ? 12 : 10) {
+            VStack(alignment: .leading, spacing: 8) {
                 // Top row: badges + save button
                 HStack(alignment: .top) {
                     HStack(spacing: 6) {
+                        // Age badge
+                        AgeBadge(level: level, label: ageLabel)
+
                         // India / Global badge
                         Text(item.isGlobal ? "Global" : "India")
                             .font(.system(size: 10, weight: .semibold))
@@ -147,7 +145,7 @@ struct NewsCardView: View {
                             .padding(.vertical, 3)
                             .background(
                                 (item.isGlobal ? AgriPulseTheme.globalSky : AgriPulseTheme.indiaGreen)
-                                    .opacity(0.10)
+                                    .opacity(0.12)
                             )
                             .foregroundStyle(item.isGlobal ? AgriPulseTheme.globalSky : AgriPulseTheme.indiaGreen)
                             .clipShape(RoundedRectangle(cornerRadius: 5))
@@ -172,25 +170,25 @@ struct NewsCardView: View {
                         onToggleSave?()
                     } label: {
                         Image(systemName: item.isSaved ? "bookmark.fill" : "bookmark")
-                            .font(.system(size: 14))
-                            .foregroundStyle(item.isSaved ? AgriPulseTheme.primary : AgriPulseTheme.mutedForeground.opacity(0.5))
+                            .font(.system(size: 13))
+                            .foregroundStyle(item.isSaved ? AgriPulseTheme.primary : AgriPulseTheme.mutedForeground.opacity(0.7))
                     }
                     .buttonStyle(.plain)
                 }
 
                 // Title
                 Text(item.title)
-                    .font(.system(size: titleSize, weight: .semibold, design: .rounded))
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundStyle(AgriPulseTheme.foreground.opacity(level.titleOpacity))
-                    .lineLimit(isHero ? 4 : 3)
+                    .lineLimit(3)
                     .multilineTextAlignment(.leading)
 
                 // Snippet (hide if it's just the title repeated)
                 if !item.snippet.isEmpty && !isSnippetDuplicateOfTitle {
                     Text(item.snippet)
-                        .font(.system(size: isHero ? 13 : 12))
-                        .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(level == .old ? 0.6 : 0.8))
-                        .lineLimit(isHero ? 3 : 2)
+                        .font(.system(size: 12))
+                        .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(level == .old ? 0.65 : 0.9))
+                        .lineLimit(2)
                 }
 
                 // AI Summary
@@ -261,24 +259,19 @@ struct NewsCardView: View {
                     }
                 }
 
-                // Footer: favicon + source + age | share + read
+                // Footer
                 Divider()
-                    .overlay(Color.white.opacity(0.05))
+                    .overlay(Color.white.opacity(0.07))
 
                 HStack(spacing: 8) {
                     // Favicon
-                    SourceFavicon(source: item.source)
+                    CachedFavicon(source: item.source)
 
                     // Source name
                     Text(item.source)
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.8))
-                        .lineLimit(1)
-
-                    // Age with color
-                    Text("· \(ageLabel)")
                         .font(.system(size: 11, weight: .semibold))
-                        .foregroundStyle(level.accentColor)
+                        .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(level == .old ? 0.6 : 0.9))
+                        .lineLimit(1)
 
                     Spacer()
 
@@ -289,7 +282,7 @@ struct NewsCardView: View {
                     } label: {
                         Image(systemName: "square.and.arrow.up")
                             .font(.system(size: 11))
-                            .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.6))
+                            .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.8))
                     }
                     .buttonStyle(.plain)
                     .confirmationDialog("Share Article", isPresented: $showShareOptions) {
@@ -322,28 +315,22 @@ struct NewsCardView: View {
                     }
                 }
             }
-            .padding(.horizontal, cardPadding)
-            .padding(.vertical, cardPadding)
+            .padding(.horizontal, 14)
+            .padding(.bottom, 14)
+            .padding(.top, (level == .breaking || level == .hot || level == .fresh) ? 8 : 14)
         }
         .background(level.cardBackground)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(AgriPulseTheme.border.opacity(0.25), lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(level.accentColor.opacity(level == .normal || level == .old ? 0.12 : 0.25), lineWidth: 1)
         )
         .shadow(color: AgriPulseTheme.cardShadowColor, radius: AgriPulseTheme.cardShadowRadius, x: 0, y: 2)
-        .scaleEffect(isPressed ? 0.98 : 1.0)
-        .opacity(isPressed ? 0.9 : 1.0)
-        .animation(.easeInOut(duration: 0.15), value: isPressed)
         .onTapGesture {
             if let url = URL(string: item.link) {
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 UIApplication.shared.open(url)
             }
         }
-        .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-            isPressed = pressing
-        }, perform: {})
         .opacity(appeared ? 1 : 0)
         .onAppear {
             withAnimation(.easeOut(duration: 0.3).delay(Double(min(index, 10)) * 0.04)) {
@@ -353,78 +340,115 @@ struct NewsCardView: View {
     }
 }
 
-// MARK: - Source Favicon
+// MARK: - Favicon Cache
 
-struct SourceFavicon: View {
-    let source: String
+@MainActor
+final class FaviconCache {
+    static let shared = FaviconCache()
+    private var cache: [String: UIImage] = [:]
+    private var inFlight: [String: Task<UIImage?, Never>] = [:]
 
-    private var domain: String {
-        // Map common source names to domains
+    private init() {}
+
+    private static let domainMap: [String: String] = [
+        "economic times": "economictimes.indiatimes.com",
+        "the economic times": "economictimes.indiatimes.com",
+        "hindustan times": "hindustantimes.com",
+        "the hindu": "thehindu.com",
+        "times of india": "timesofindia.indiatimes.com",
+        "the times of india": "timesofindia.indiatimes.com",
+        "livemint": "livemint.com",
+        "mint markets": "livemint.com",
+        "ndtv": "ndtv.com",
+        "reuters": "reuters.com",
+        "reuters commodities": "reuters.com",
+        "bloomberg": "bloomberg.com",
+        "bloomberg markets": "bloomberg.com",
+        "moneycontrol": "moneycontrol.com",
+        "business standard": "business-standard.com",
+        "financial express": "financialexpress.com",
+        "indian express": "indianexpress.com",
+        "tribune india": "tribuneindia.com",
+        "cnbc-tv18": "cnbctv18.com",
+        "cnbc tv18": "cnbctv18.com",
+        "zee business": "zeebiz.com",
+        "krishijagran": "krishijagran.com",
+        "krishi jagran": "krishijagran.com",
+        "agriwatch": "agriwatch.com",
+        "igrain": "igrain.in",
+        "freshplaza": "freshplaza.com",
+        "hindu businessline": "thehindubusinessline.com",
+        "businessline": "thehindubusinessline.com",
+        "deccan herald": "deccanherald.com",
+        "odisha tv": "odishatv.in",
+        "pib": "pib.gov.in",
+        "pib - press information bureau": "pib.gov.in",
+        "coindesk": "coindesk.com",
+        "cointelegraph": "cointelegraph.com",
+        "agrimoney": "agrimoney.com",
+        "farms.com": "farms.com",
+        "belfast live": "belfastlive.co.uk",
+    ]
+
+    static func domain(for source: String) -> String {
         let lowered = source.lowercased()
-        let domainMap: [String: String] = [
-            "economic times": "economictimes.indiatimes.com",
-            "the economic times": "economictimes.indiatimes.com",
-            "hindustan times": "hindustantimes.com",
-            "the hindu": "thehindu.com",
-            "times of india": "timesofindia.indiatimes.com",
-            "the times of india": "timesofindia.indiatimes.com",
-            "livemint": "livemint.com",
-            "mint markets": "livemint.com",
-            "ndtv": "ndtv.com",
-            "reuters": "reuters.com",
-            "reuters commodities": "reuters.com",
-            "bloomberg": "bloomberg.com",
-            "bloomberg markets": "bloomberg.com",
-            "moneycontrol": "moneycontrol.com",
-            "business standard": "business-standard.com",
-            "financial express": "financialexpress.com",
-            "indian express": "indianexpress.com",
-            "tribune india": "tribuneindia.com",
-            "cnbc-tv18": "cnbctv18.com",
-            "cnbc tv18": "cnbctv18.com",
-            "zee business": "zeebiz.com",
-            "krishijagran": "krishijagran.com",
-            "krishi jagran": "krishijagran.com",
-            "agriwatch": "agriwatch.com",
-            "igrain": "igrain.in",
-            "freshplaza": "freshplaza.com",
-            "hindu businessline": "thehindubusinessline.com",
-            "businessline": "thehindubusinessline.com",
-            "deccan herald": "deccanherald.com",
-            "odisha tv": "odishatv.in",
-            "pib": "pib.gov.in",
-            "coindesk": "coindesk.com",
-            "cointelegraph": "cointelegraph.com",
-            "agrimoney": "agrimoney.com",
-            "farms.com": "farms.com",
-            "belfast live": "belfastlive.co.uk",
-        ]
-
-        if let mapped = domainMap[lowered] {
-            return mapped
-        }
-
-        // Try to derive domain from source name
+        if let mapped = domainMap[lowered] { return mapped }
         let cleaned = lowered
             .replacingOccurrences(of: " ", with: "")
             .replacingOccurrences(of: "the", with: "")
         return "\(cleaned).com"
     }
 
+    func image(for source: String) -> UIImage? {
+        cache[Self.domain(for: source)]
+    }
+
+    func fetch(for source: String) async -> UIImage? {
+        let domain = Self.domain(for: source)
+        if let cached = cache[domain] { return cached }
+        if let task = inFlight[domain] { return await task.value }
+
+        let task = Task<UIImage?, Never> {
+            guard let url = URL(string: "https://www.google.com/s2/favicons?domain=\(domain)&sz=32") else { return nil }
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                guard let img = UIImage(data: data) else { return nil }
+                cache[domain] = img
+                return img
+            } catch { return nil }
+        }
+        inFlight[domain] = task
+        let result = await task.value
+        inFlight.removeValue(forKey: domain)
+        return result
+    }
+}
+
+// MARK: - Cached Favicon View
+
+struct CachedFavicon: View {
+    let source: String
+    @State private var image: UIImage?
+
     var body: some View {
-        AsyncImage(url: URL(string: "https://www.google.com/s2/favicons?domain=\(domain)&sz=32")) { phase in
-            switch phase {
-            case .success(let image):
-                image
+        Group {
+            if let image {
+                Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 14, height: 14)
                     .clipShape(RoundedRectangle(cornerRadius: 3))
-            default:
+            } else {
                 Image(systemName: "globe")
                     .font(.system(size: 10))
                     .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
                     .frame(width: 14, height: 14)
+            }
+        }
+        .onAppear {
+            image = FaviconCache.shared.image(for: source)
+            if image == nil {
+                Task { image = await FaviconCache.shared.fetch(for: source) }
             }
         }
     }
