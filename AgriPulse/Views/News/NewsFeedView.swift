@@ -53,7 +53,7 @@ struct NewsFeedView: View {
                                     Text(syncText)
                                         .font(.system(size: 11))
                                 }
-                                .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
+                                .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.7))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
 
@@ -74,7 +74,7 @@ struct NewsFeedView: View {
                                     .foregroundStyle(
                                         viewModel.isRefreshing
                                             ? AgriPulseTheme.hotAmber.opacity(0.8)
-                                            : AgriPulseTheme.mutedForeground.opacity(0.5)
+                                            : AgriPulseTheme.mutedForeground.opacity(0.7)
                                     )
 
                                 Spacer()
@@ -328,7 +328,7 @@ struct NewsFeedView: View {
                     Text(syncText)
                         .font(.system(size: 11))
                 }
-                .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.5))
+                .foregroundStyle(AgriPulseTheme.mutedForeground.opacity(0.7))
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
@@ -349,7 +349,7 @@ struct NewsFeedView: View {
                     .foregroundStyle(
                         viewModel.isRefreshing
                             ? AgriPulseTheme.hotAmber.opacity(0.8)
-                            : AgriPulseTheme.mutedForeground.opacity(0.5)
+                            : AgriPulseTheme.mutedForeground.opacity(0.7)
                     )
 
                 Spacer()

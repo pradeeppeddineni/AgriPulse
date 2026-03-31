@@ -145,10 +145,17 @@ struct NewsCardView: View {
                             .padding(.vertical, 3)
                             .background(
                                 (item.isGlobal ? AgriPulseTheme.globalSky : AgriPulseTheme.indiaGreen)
-                                    .opacity(0.12)
+                                    .opacity(0.15)
                             )
                             .foregroundStyle(item.isGlobal ? AgriPulseTheme.globalSky : AgriPulseTheme.indiaGreen)
                             .clipShape(RoundedRectangle(cornerRadius: 5))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 5)
+                                    .stroke(
+                                        (item.isGlobal ? AgriPulseTheme.globalSky : AgriPulseTheme.indiaGreen).opacity(0.3),
+                                        lineWidth: 1
+                                    )
+                            )
 
                         // Commodity pill
                         if let name = commodityName {
